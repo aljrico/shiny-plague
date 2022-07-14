@@ -13,16 +13,28 @@ GameState <- R6::R6Class(
       private$reactiveDep(private$count)
       invisible()
     },
+    initializeData = function(){
+      data('map_data')
+      top_countries <- 
+        map_data |> 
+        dplyr::arrange(desc(POP2005)) |> 
+        dplyr::top_n(10, POP2005) |> 
+        dplyr::pull(NAME)
+      random_country <- sample(top_countries, 1)
+      random_row <- which(map_data$NAME == random_country)
+      # map_data <- map_data[map_data$POP2005 > 0, ]
+      map_data[random_row, ]$confirmed_cases <- 1
+      private$map_data <- map_data
+    },
     count = 0
   ),
   public = list(
     initialize = function() {
-      data('map_data')
       # Until someone calls $reactive(), private$reactiveDep() is a no-op. Need
       # to set it here because if it's set in the definition of private above, it will
       # be locked and can't be changed.
       private$reactiveDep <- function(x) NULL
-      private$map_data <- map_data
+      private$initializeData()
       private$win <- FALSE
       private$lose <- FALSE
       private$score <- 0
@@ -47,8 +59,19 @@ GameState <- R6::R6Class(
       private$map_data
     },
     spreadInfection = function(){
-      random_row <- sample(nrow(private$map_data), 1)
-      private$map_data[random_row, ]$confirmed_cases <- private$map_data[random_row, ]$confirmed_cases + 1
+      infection_rate <- 0.1
+      populations <- private$map_data$POP2005
+      infected <- private$map_data$confirmed_cases
+      infected_proportion <- infected / populations
+      new_infected <- 
+       round((1 - infected_proportion ) * infected * (0.5 + infection_rate) * runif(length(infected)))
+     
+      private$map_data$confirmed_cases <- 
+        infected + new_infected
+      private$map_data |> 
+        as.data.frame() |> 
+        dplyr::filter(confirmed_cases > 0) |> 
+        print()
     },
     checkWin = function(){
       if(private$score > 50){
