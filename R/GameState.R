@@ -1,6 +1,7 @@
 GameState <- R6::R6Class(
   "GameState",
   private = list(
+    map_data = NULL,
     score = NULL,
     health = NULL,
     win = NULL,
@@ -16,10 +17,12 @@ GameState <- R6::R6Class(
   ),
   public = list(
     initialize = function() {
+      data('map_data')
       # Until someone calls $reactive(), private$reactiveDep() is a no-op. Need
       # to set it here because if it's set in the definition of private above, it will
       # be locked and can't be changed.
       private$reactiveDep <- function(x) NULL
+      private$map_data <- map_data
       private$win <- FALSE
       private$lose <- FALSE
       private$score <- 0
@@ -39,6 +42,13 @@ GameState <- R6::R6Class(
     print = function() {
       cat("Score:", private$score, "/n",
           "Health:", private$health)
+    },
+    getMapData = function(){
+      private$map_data
+    },
+    spreadInfection = function(){
+      random_row <- sample(nrow(private$map_data), 1)
+      private$map_data[random_row, ]$confirmed_cases <- private$map_data[random_row, ]$confirmed_cases + 1
     },
     checkWin = function(){
       if(private$score > 50){

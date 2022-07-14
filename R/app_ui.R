@@ -11,6 +11,7 @@ app_ui <- function(request) {
     # Your application UI logic 
     fluidPage(
       h1("shiny.plague"),
+      mod_map_ui(),
       infected_score_ui()
     )
   )

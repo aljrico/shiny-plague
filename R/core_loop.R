@@ -3,6 +3,7 @@ core_loop <- function(gameState){
     loop <- reactiveTimer(1000)
     observeEvent(loop(), {
       gameState()$changeScore(1)
+      gameState()$spreadInfection()
     })
   })
 }
