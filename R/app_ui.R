@@ -10,7 +10,8 @@ app_ui <- function(request) {
     golem_add_external_resources(),
     # Your application UI logic 
     fluidPage(
-      h1("shiny.plague")
+      h1("shiny.plague"),
+      infected_score_ui()
     )
   )
 }

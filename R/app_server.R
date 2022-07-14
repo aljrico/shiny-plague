@@ -5,6 +5,8 @@
 #' @import shiny
 #' @noRd
 app_server <- function( input, output, session ) {
-  # Your application server logic 
+  gameState <- GameState$new()$reactive()
+  core_loop(gameState)
+  infected_score_server(gameState = gameState)
   
 }
