@@ -108,6 +108,7 @@ add_polygons <- function(map, map_data) {
     "<hr>",
     "<b> Infected: </b> ", prettyNum(map_data[["confirmed_cases"]], big.mark = ","), "<br/>",
     "<b> Deaths: </b> ", prettyNum(map_data[["confirmed_deaths"]], big.mark = ","), "<br/>",
+    "<b> Recovered: </b> ", prettyNum(map_data[["confirmed_recovered"]], big.mark = ","), "<br/>",
     "<b> Tests: </b> ", prettyNum(map_data[["total_tests"]], big.mark = ","), "<br/>"
   ) |>
     lapply(htmltools::HTML)
