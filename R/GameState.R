@@ -2,13 +2,15 @@ GameState <- R6::R6Class(
   "GameState",
   private = list(
     map_data = NULL,
+    country_border_mapping = NULL,
     ticks = NULL,
     score = NULL,
     health = NULL,
-    win = NULL,
-    lose = NULL,
     reactiveDep = NULL,
     reactiveExpr = NULL,
+    death_probability = NULL,
+    infection_probability = NULL,
+    recovery_rate = NULL,
     count = 0,
     invalidate = function() {
       private$count <- private$count + 1
@@ -29,9 +31,9 @@ GameState <- R6::R6Class(
       random_row <- which(map_data$NAME == random_country)
       # map_data <- map_data[map_data$POP2005 > 0, ]
       map_data[random_row, ]$confirmed_cases <- 1
-      private$map_data <- map_data
+      private$map_data <- data.table::setDT(map_data)
     },
-    killPopulation = function(death_probability = 0.001){
+    killPopulation = function(death_probability = self$getDeathProbability()){
       # of the infected population, there is a death_probability chance that any one person might die
       infected <- private$map_data$confirmed_cases
       
@@ -40,19 +42,38 @@ GameState <- R6::R6Class(
         return(sum(new_deaths))
       })
       
-      
       private$map_data$confirmed_deaths<- private$map_data$confirmed_deaths + new_deaths
       # when someone dies when infected, that is one less person with the infection
+      # also remove from total population ?   
       private$map_data$confirmed_cases <- private$map_data$confirmed_cases - new_deaths
       
     },
-    spreadInfection = function(infection_probability = 0.05){
-      infected <- private$map_data$confirmed_cases
+    spreadInfection = function(infection_probability = self$getInfectionProbability()){
+      countries <- private$map_data$ISO3
       
-      new_infected <- purrr::map_dbl(infected, function(total_infected){
+      new_infected <- purrr::map_dbl(countries, function(country){
+        total_infected <- private$map_data[private$map_data$ISO3 == country, confirmed_cases]
         if (total_infected == 0 ){
-          # random term to spread infections
-          total_infected <- sample(0:1, 1, prob = c(0.99, 0.01))
+          # if any of the bordering countries have higher than 10% of their population infected, this will
+          # increase the chance of the disease hopping borders
+          # otherwise there is a small random probablity that the disease will spread into new territory 
+          borders_with <- private$country_border_mapping[[country]]
+          
+          # neighbour_cases <- private$map_data |>
+          #   dplyr::select(ISO3, confirmed_cases, POP2005) |>
+          #   dplyr::filter(ISO3 %in% borders_with) |>
+          #   dplyr::mutate(prop_infected = confirmed_cases / POP2005) |>
+          #   dplyr::filter(prop_infected > 0.1)
+          
+          neighbour_cases <- private$map_data[ISO3 %in% borders_with, .(prop_infected =  confirmed_cases / POP2005)][
+            prop_infected > 0.1]
+          
+          infected_neighbours <- nrow(neighbour_cases)
+          infected_neighbours_weighting <-  0.01
+          random_term<- 0.001
+          chance_of_spread <- infected_neighbours * infected_neighbours_weighting + random_term
+          
+          total_infected <- sample(0:1, 1, prob = c(1 - chance_of_spread, chance_of_spread))
         }
         new_infections <- sample(0:1, total_infected, replace = TRUE, prob = c(1-infection_probability, infection_probability))
         return(total_infected + sum(new_infections))
@@ -64,7 +85,7 @@ GameState <- R6::R6Class(
                                                private$map_data$POP2005)
       
     },
-    recoverPopulation = function(recovery_rate = 0.01){
+    recoverPopulation = function(recovery_rate = self$getRecoveryRate()){
       infected <- private$map_data$confirmed_cases
       
       new_recovered<- purrr::map_dbl(infected, function(total_infected){
@@ -75,8 +96,29 @@ GameState <- R6::R6Class(
       private$map_data$confirmed_recovered <- private$map_data$confirmed_recovered + new_recovered
       # when someone recovers after being infected, that is one less person with the infection
       private$map_data$confirmed_cases <- private$map_data$confirmed_cases - new_recovered
+    },
+    getBorders = function(country){
+      has_border <- function(x){
+        if(x == 1) return(TRUE)
+        return(FALSE)
+      }
+      # borders <- private$map_data |>
+      #   dplyr::filter(ISO3 == country) |>
+      #   dplyr::select(tidyr::starts_with("borders_with_")) |>
+      #   purrr::keep(~ has_border(.x))
+      #dplyr::select(where(~ has_border(.x)))
+      cols <- grep("borders_with_", names(private$map_data))
+      borders <- private$map_data[ISO3 == country, ..cols] |>
+        purrr::keep(~ has_border(.x))
+      
+      borders <- names(borders) |>
+        stringr::str_remove("borders_with_")
+    },
+    createBorderMapping = function(){
+      countries <- private$map_data$ISO3
+      borders <- purrr::map(countries, ~ private$getBorders(.x))
+      return(setNames(as.list(borders), countries))
     }
-    
   ),
   public = list(
     initialize = function() {
@@ -85,11 +127,14 @@ GameState <- R6::R6Class(
       # be locked and can't be changed.
       private$reactiveDep <- function(x) NULL
       private$initializeData()
-      private$win <- FALSE
-      private$lose <- FALSE
+      private$country_border_mapping <- private$createBorderMapping()
       private$score <- 0
       private$ticks <- 0
       private$health <- 100
+      
+      self$setDeathProbability(0.001)
+      self$setInfectionProbability(0.05)
+      self$setRecoveryRate(0.01)
     },
     reactive = function() {
       # Ensure the reactive stuff is initialized.
@@ -106,6 +151,24 @@ GameState <- R6::R6Class(
       cat("Score:", private$score, "/n",
           "Health:", private$health)
     },
+    setDeathProbability = function(death_probability){
+      private$death_probability <- death_probability
+    },
+    setInfectionProbability = function(infection_probability){
+      private$infection_probability <- infection_probability
+    },
+    setRecoveryRate = function(recovery_rate){
+      private$recovery_rate <- recovery_rate
+    },
+    getDeathProbability = function(){
+      private$death_probability 
+    },
+    getInfectionProbability = function(){
+      private$infection_probability
+    },
+    getRecoveryRate = function(){
+      private$recovery_rate
+    },
     getMapData = function(){
       private$map_data
     },
@@ -114,42 +177,11 @@ GameState <- R6::R6Class(
       private$killPopulation()
       private$spreadInfection()
     },
-    # spreadInfection = function(){
-    #   infection_rate <- 0.1
-    #   populations <- private$map_data$POP2005
-    #   infected <- private$map_data$confirmed_cases
-    #   infected_proportion <- infected / populations
-    #   new_infected <-
-    #    round((1 - infected_proportion ) * infected * (0.5 + infection_rate) * runif(length(infected)))
-    # 
-    #   private$map_data$confirmed_cases <-
-    #     infected + new_infected
-    #   private$map_data |>
-    #     as.data.frame() |>
-    #     dplyr::filter(confirmed_cases > 0) |>
-    #     print()
-    # },
     addTick = function(){
       private$ticks <- private$ticks + 1
     },
     getTicks = function(){
       private$ticks
-    },
-    checkWin = function(){
-      if(private$score > 50){
-        private$win <- TRUE
-      } else {
-        private$win <- FALSE
-      }
-      return(private$win)
-    },
-    checkLose = function(){
-      if(private$health < 0){
-        private$lose <- TRUE
-      } else {
-        private$lose <- FALSE
-      }
-      return(private$lose)
     },
     changeScore = function(add_score) {
       private$score <- private$score + add_score
