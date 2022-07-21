@@ -2,6 +2,7 @@ GameState <- R6::R6Class(
   "GameState",
   private = list(
     map_data = NULL,
+    borders = NULL,
     country_border_mapping = NULL,
     ticks = NULL,
     score = NULL,
@@ -19,19 +20,9 @@ GameState <- R6::R6Class(
     },
     initializeData = function(){
       data('map_data')
-      map_data$geometry <- NULL
-      class(map_data) <- "data.frame"
-      top_countries <-
-        map_data |>
-        dplyr::arrange(desc(POP2005)) |>
-        dplyr::top_n(10, POP2005) |>
-        dplyr::pull(NAME)
-      
-      random_country <- sample(top_countries, 1)
-      random_row <- which(map_data$NAME == random_country)
-      # map_data <- map_data[map_data$POP2005 > 0, ]
-      map_data[random_row, ]$confirmed_cases <- 1
-      private$map_data <- data.table::setDT(map_data)
+      private$map_data <- map_data[map_data$POP2005 > 0, ]
+      private$sproutFirstInfected()
+      private$createBorderMapping()
     },
     killPopulation = function(death_probability = self$getDeathProbability()){
       # of the infected population, there is a death_probability chance that any one person might die
@@ -49,41 +40,40 @@ GameState <- R6::R6Class(
       
     },
     spreadInfection = function(infection_probability = self$getInfectionProbability()){
+      
+      in_country_spread_factor <- 1e-1
+      cross_country_spread_factor <- 1e-3
+      
       countries <- private$map_data$ISO3
+      countries <- private$map_data[private$map_data$confirmed_cases > 0, ]$ISO3 |> 
+        as.character()
+      countries <- countries[!is.na(countries)]
       
-      new_infected <- purrr::map_dbl(countries, function(country){
-        total_infected <- private$map_data[private$map_data$ISO3 == country, confirmed_cases]
-        if (total_infected == 0 ){
-          # if any of the bordering countries have higher than 10% of their population infected, this will
-          # increase the chance of the disease hopping borders
-          # otherwise there is a small random probablity that the disease will spread into new territory 
-          borders_with <- private$country_border_mapping[[country]]
+      sapply(countries, function(country){
+        total_infected <- private$map_data[private$map_data$ISO3 == country, ]$confirmed_cases
+        proportion_infected <- total_infected / private$map_data[private$map_data$ISO3 == country, ]$POP2005
+        
+        # In-country spread
+        chance_of_spread <- in_country_spread_factor * (1 - proportion_infected)
+        new_infections <- rbinom(1, total_infected, chance_of_spread)
+        private$map_data[private$map_data$ISO3 == country, ]$confirmed_cases <- total_infected + new_infections
+        
+        # Cross-country spread
+        bordering_countries <- private$borders[[country]]
+        sapply(bordering_countries, function(bc){
+          chance_of_spread <- sqrt(proportion_infected * cross_country_spread_factor)
+          rbinom(1, 1, cross_country_spread_factor)
+          new_infected <- sample(0:1, 1, prob = c(1 - chance_of_spread, chance_of_spread))
+          if(new_infected == 0) return(NULL)
           
-          # neighbour_cases <- private$map_data |>
-          #   dplyr::select(ISO3, confirmed_cases, POP2005) |>
-          #   dplyr::filter(ISO3 %in% borders_with) |>
-          #   dplyr::mutate(prop_infected = confirmed_cases / POP2005) |>
-          #   dplyr::filter(prop_infected > 0.1)
+          existing_infected <- 
+            private$map_data[private$map_data$ISO3 == bc, ]$confirmed_cases
           
-          neighbour_cases <- private$map_data[ISO3 %in% borders_with, .(prop_infected =  confirmed_cases / POP2005)][
-            prop_infected > 0.1]
-          
-          infected_neighbours <- nrow(neighbour_cases)
-          infected_neighbours_weighting <-  0.01
-          random_term<- 0.001
-          chance_of_spread <- infected_neighbours * infected_neighbours_weighting + random_term
-          
-          total_infected <- sample(0:1, 1, prob = c(1 - chance_of_spread, chance_of_spread))
-        }
-        new_infections <- sample(0:1, total_infected, replace = TRUE, prob = c(1-infection_probability, infection_probability))
-        return(total_infected + sum(new_infections))
+          if(existing_infected > 0) return(NULL)
+          country_row <- which(private$map_data$ISO3 == bc)
+          private$map_data[country_row, ]$confirmed_cases <- new_infected
+        })
       })
-      
-      private$map_data$confirmed_cases <- new_infected
-      # make sure we don't have more infected than total population
-      private$map_data$confirmed_cases <- pmin(private$map_data$confirmed_cases,
-                                               private$map_data$POP2005)
-      
     },
     recoverPopulation = function(recovery_rate = self$getRecoveryRate()){
       infected <- private$map_data$confirmed_cases
@@ -108,6 +98,9 @@ GameState <- R6::R6Class(
       #   purrr::keep(~ has_border(.x))
       #dplyr::select(where(~ has_border(.x)))
       cols <- grep("borders_with_", names(private$map_data))
+      private$map_data |> 
+        dplyr::filter(ISO3 == country) |> 
+        dplyr::pull()
       borders <- private$map_data[ISO3 == country, ..cols] |>
         purrr::keep(~ has_border(.x))
       
@@ -116,9 +109,37 @@ GameState <- R6::R6Class(
     },
     createBorderMapping = function(){
       countries <- private$map_data$ISO3
-      borders <- purrr::map(countries, ~ private$getBorders(.x))
-      return(setNames(as.list(borders), countries))
+
+      borders <- lapply(countries, function(country){
+        private$map_data |> 
+          dplyr::select(-geometry) |> 
+          tibble::as_tibble() |> 
+          dplyr::filter(ISO3 == country) |>
+          dplyr::select(dplyr::contains('borders_with')) |> 
+          tidyr::pivot_longer(tidyr::everything()) |> 
+          dplyr::filter(value > 0) |> 
+          dplyr::mutate(name = name |> stringr::str_remove('borders_with_')) |> 
+          dplyr::pull(name) |> 
+          unique()
+      })
+      
+      names(borders) <- countries
+      private$borders <- borders
+    },
+    sproutFirstInfected = function(){
+      top_countries <-
+        private$map_data |>
+        dplyr::select(-geometry) |>
+        tibble::as_tibble() |> 
+        dplyr::arrange(desc(POP2005)) |>
+        dplyr::top_n(10, POP2005) |>
+        dplyr::pull(NAME)
+      
+      random_country <- sample(top_countries, 1)
+      random_row <- which(private$map_data$NAME == random_country)
+      private$map_data[random_row, ]$confirmed_cases <- 1
     }
+    
   ),
   public = list(
     initialize = function() {
@@ -127,7 +148,6 @@ GameState <- R6::R6Class(
       # be locked and can't be changed.
       private$reactiveDep <- function(x) NULL
       private$initializeData()
-      private$country_border_mapping <- private$createBorderMapping()
       private$score <- 0
       private$ticks <- 0
       private$health <- 100
@@ -148,8 +168,12 @@ GameState <- R6::R6Class(
       private$reactiveExpr
     },
     print = function() {
-      cat("Score:", private$score, "/n",
-          "Health:", private$health)
+      infected_countries <- private$map_data[private$map_data$confirmed_cases > 0, ]$ISO3 |> as.character() |>  unique()
+      total_infected <- private$map_data$confirmed_cases |> sum()
+      
+      cli::cli_alert_info(paste0("Infected Countries: ", infected_countries))
+      cli::cli_alert_info(paste0("Total Infected:", total_infected))
+      cli::cat_rule()
     },
     setDeathProbability = function(death_probability){
       private$death_probability <- death_probability
@@ -173,6 +197,7 @@ GameState <- R6::R6Class(
       private$map_data
     },
     progressInfection = function(){
+      self$print()
       private$recoverPopulation()
       private$killPopulation()
       private$spreadInfection()

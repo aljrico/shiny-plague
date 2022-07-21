@@ -15,6 +15,7 @@ Imports:
     leaflet,
     processx,
     R6,
+    sf,
     shiny (>= 1.7.1),
     shinyjs
 Encoding: UTF-8
