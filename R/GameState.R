@@ -9,6 +9,8 @@ GameState <- R6::R6Class(
     health = NULL,
     reactiveDep = NULL,
     reactiveExpr = NULL,
+    dna_points_probability = 0.1,
+    dna_points = 0,
     death_probability = NULL,
     infection_probability = NULL,
     recovery_rate = NULL,
@@ -61,6 +63,7 @@ GameState <- R6::R6Class(
         # In-country spread
         chance_of_spread <- in_country_spread_factor * (1 - proportion_infected)
         new_infections <- rbinom(1, total_infected, chance_of_spread)
+        if(new_infections > 0) self$earnDNAPoints(p = 1)
         private$map_data[private$map_data$ISO3 == country, ]$confirmed_cases <- total_infected + new_infections
         
         # Cross-country spread
@@ -75,6 +78,7 @@ GameState <- R6::R6Class(
             private$map_data[private$map_data$ISO3 == bc, ]$confirmed_cases
           
           if(existing_infected > 0) return(NULL)
+          self$earnDNAPoints()
           country_row <- which(private$map_data$ISO3 == bc)
           private$map_data[country_row, ]$confirmed_cases <- new_infected
         })
@@ -207,25 +211,13 @@ GameState <- R6::R6Class(
       private$killPopulation()
       private$spreadInfection()
     },
-    addTick = function(){
-      private$ticks <- private$ticks + 1
-    },
-    getTicks = function(){
-      private$ticks
-    },
-    changeScore = function(add_score) {
-      private$score <- private$score + add_score
+    earnDNAPoints = function(n = 1, p = private$dna_points_probability){
+      new_points <- rbinom(1, n, p)
+      private$dna_points <- private$dna_points + new_points
       private$invalidate()
     },
-    getScore = function() {
-      private$score
-    },
-    changeHealth = function(add_health) {
-      private$health <- private$health + add_health
-      private$invalidate()
-    },
-    getHealth = function() {
-      private$health
+    getDNAPoints = function(){
+      private$dna_points
     }
   )
 )
