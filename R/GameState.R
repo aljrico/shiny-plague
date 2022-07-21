@@ -20,7 +20,7 @@ GameState <- R6::R6Class(
     },
     initializeData = function(){
       data('map_data')
-      private$map_data <- map_data[map_data$POP2005 > 0, ]
+      private$map_data <- map_data
       private$sproutFirstInfected()
       private$createBorderMapping()
     },
@@ -51,7 +51,12 @@ GameState <- R6::R6Class(
       
       sapply(countries, function(country){
         total_infected <- private$map_data[private$map_data$ISO3 == country, ]$confirmed_cases
-        proportion_infected <- total_infected / private$map_data[private$map_data$ISO3 == country, ]$POP2005
+        total_population <- private$map_data[private$map_data$ISO3 == country, ]$POP2005
+        if(total_population == 0){
+          cli::cli_alert_warning('{country} has 0 population')
+          return(NULL)
+        }
+        proportion_infected <- total_infected / total_population
         
         # In-country spread
         chance_of_spread <- in_country_spread_factor * (1 - proportion_infected)
