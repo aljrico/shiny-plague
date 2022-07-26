@@ -218,6 +218,18 @@ GameState <- R6::R6Class(
     },
     getDNAPoints = function(){
       private$dna_points
+    },
+    getTotalInfected = function(){
+      sum(private$map_data$confirmed_cases)
+    },
+    getTotalPopulation = function(){
+      sum(private$map_data$POP2005)
+    },
+    getTotalDeaths = function(){
+      sum(private$map_data$confirmed_deaths)
+    },
+    getTotalRecovered = function(){
+      sum(private$map_data$confirmed_recovered)
     }
   )
 )
