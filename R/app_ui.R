@@ -12,7 +12,7 @@ app_ui <- function(request) {
     fluidPage(
       h1("shiny.plague"),
       mod_map_ui(),
-      infected_score_ui()
+      disease_indicators_ui()
     )
   )
 }
