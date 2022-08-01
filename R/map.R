@@ -17,7 +17,8 @@ mod_map_ui <- function(id = 'map') {
 #' cloropleth Server Function
 #'
 #' @noRd
-mod_map_server <- function(id = 'map', gameState){
+mod_map_server <- function(id = 'map', gameState, cardStack){
+
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     observeEvent(input$cloropleth_shape_click, {
@@ -49,26 +50,26 @@ mod_map_server <- function(id = 'map', gameState){
             lat2 = 90
           ) |>
           # leaflet::addTiles() |>
-          leaflet::setView(lat = 20, lng = 10, zoom = 2.2)
-          # leaflet::addControl(html = legend_hint(), position = "topright")
-        # leaflet::addLayersControl(baseGroups = c("confirmed_cases", "confirmed_deaths", "total_tests"))
-        # leaflet::addLegend(
-        #   pal = my_palette,
-        #   values = ~ rv$selected_variable,
-        #   opacity = 0.9,
-        #   title = title,
-        #   position = "bottomleft"
-        # )
+          leaflet::setView(lat = 20, lng = 10, zoom = 2.2) |>
+          leaflet::addControl(
+            actionButton(
+              inputId = ns("disease_design"),
+              label = "Disease Design",
+              class = "disease-shop"
+            ),
+            position="bottomleft", className = "fieldset {border: 0;}")
       })
     
     observe({
       leaflet::leafletProxy(
         mapId = 'cloropleth',
         data = map_data
-      ) |> 
-        add_polygons(gameState()$getMapData()) 
-        
+      ) |>
+        add_polygons(gameState()$getMapData())
     })
+    
+    disease_shop_modal_server(ns("shop_modal"), gameState, reactive(input$disease_design), cardStack)
+    
   }) 
 }
 
@@ -80,7 +81,7 @@ add_polygons <- function(map, map_data) {
     bins <- unique(floor(quantile(log(metric), qs, na.rm = TRUE) |> as.vector()))
     c(bins, Inf)
   }
-
+  
   create_gradient <- function(col1, col2) {
     fn_cols <- grDevices::colorRamp(c(col1, col2), space = "Lab", interpolate = "spline")
     cols <- fn_cols(seq(0, 1, length.out = 10)) / 255
@@ -101,7 +102,7 @@ add_polygons <- function(map, map_data) {
     x[!is.numeric(x)] <- NA
     x
   }
-
+  
   # Prepare text for the tooltip
   mytext <- paste0(
     "<b> Country: </b> ", map_data$NAME, "<br/>",
@@ -130,7 +131,7 @@ add_polygons <- function(map, map_data) {
     na.color = "white", 
     bins =  seq(0, 1, length.out = 1e3)
     # bins = get_quantiles(map_data[["confirmed_cases"]])
-    )
+  )
   
   map |>
     leaflet::addPolygons(

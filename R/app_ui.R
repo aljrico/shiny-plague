@@ -10,6 +10,7 @@ app_ui <- function(request) {
     golem_add_external_resources(),
     # Your application UI logic 
     fluidPage(
+      shinyjs::useShinyjs(),
       h1("shiny.plague"),
       mod_map_ui(),
       infected_score_ui()
@@ -42,3 +43,14 @@ golem_add_external_resources <- function(){
   )
 }
 
+cards <- data.frame(
+  category = rep(c("Sneezing", "Coughing", "Pooping"), length.out = 10),
+  cost = sample(1:100, 10),
+  lethality = sample(-20:20, 10),
+  infectiousness = sample(-20:20, 10),
+  visibility = sample(-20:20, 10),
+  state = rep(c("unavailable", "available", "cant_afford"), length.out = 10)
+)
+
+card_list <- do.call(Map, c(f= Card$new, cards)) 
+names(card_list) <- NULL
