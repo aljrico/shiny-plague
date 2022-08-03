@@ -5,12 +5,27 @@ DiseaseManager <- R6::R6Class(
       self$setDeathProbability(0.001)
       self$setInfectionProbability(0.05)
       self$setRecoveryRate(0.01)
-      private$sproutFirstInfected(map_data)
+      #private$sproutFirstInfected(map_data)
+    },
+    sproutFirstInfected = function(map_data){
+      top_countries <-
+        map_data |>
+        dplyr::select(-geometry) |>
+        tibble::as_tibble() |>
+        dplyr::arrange(desc(POP2005)) |>
+        dplyr::top_n(10, POP2005) |>
+        dplyr::pull(NAME)
+      
+      random_country <- sample(top_countries, 1)
+      random_row <- which(map_data$NAME == random_country)
+      map_data[random_row, ]$confirmed_cases <- 1
+      return(map_data)
     },
     progressInfection = function(map_data){
-      private$recoverPopulation(map_data)
-      private$killPopulation(map_data)
-      private$spreadInfection(map_data)
+      map_data <- private$recoverPopulation(map_data)
+      map_data <- private$killPopulation(map_data)
+      map_data <- private$spreadInfection(map_data)
+      map_data
     },
     setDeathProbability = function(death_probability){
       private$death_probability <- death_probability
@@ -35,21 +50,7 @@ DiseaseManager <- R6::R6Class(
     death_probability = NULL,
     infection_probability = NULL,
     recovery_rate = NULL,
-    sproutFirstInfected = function(map_data){
-      top_countries <-
-        map_data |>
-        dplyr::select(-geometry) |>
-        tibble::as_tibble() |>
-        dplyr::arrange(desc(POP2005)) |>
-        dplyr::top_n(10, POP2005) |>
-        dplyr::pull(NAME)
-
-      random_country <- sample(top_countries, 1)
-      random_row <- which(map_data$NAME == random_country)
-      map_data[random_row, ]$confirmed_cases <- 1
-      return(map_data)
-    },
-    killPopulation = function(death_probability = self$getDeathProbability(), map_data){
+    killPopulation = function(map_data,death_probability = self$getDeathProbability()){
       # of the infected population, there is a death_probability chance that any one person might die
       infected <- map_data$confirmed_cases
       
@@ -64,8 +65,7 @@ DiseaseManager <- R6::R6Class(
       map_data$confirmed_cases <- map_data$confirmed_cases - new_deaths
       return(map_data)
     },
-    spreadInfection = function(infection_probability = self$getInfectionProbability(), map_data){
-      
+    spreadInfection = function(map_data,infection_probability = self$getInfectionProbability()){
       in_country_spread_factor <- 1e-1
       cross_country_spread_factor <- 1e-3
       
@@ -86,7 +86,7 @@ DiseaseManager <- R6::R6Class(
         # In-country spread
         chance_of_spread <- in_country_spread_factor * (1 - proportion_infected)
         new_infections <- rbinom(1, total_infected, chance_of_spread)
-        map_data[map_data$ISO3 == country, ]$confirmed_cases <- total_infected + new_infections
+        map_data[map_data$ISO3 == country, ]$confirmed_cases <<- total_infected + new_infections
         
         # Cross-country spread
         bordering_countries <- private$borders[[country]]
@@ -101,13 +101,14 @@ DiseaseManager <- R6::R6Class(
           
           if(existing_infected > 0) return(NULL)
           country_row <- which(map_data$ISO3 == bc)
-          map_data[country_row, ]$confirmed_cases <- new_infected
+          map_data[country_row, ]$confirmed_cases <<- new_infected
           
           return(map_data)
         })
       })
+      return(map_data)
     },
-    recoverPopulation = function(recovery_rate = self$getRecoveryRate(), map_data){
+    recoverPopulation = function(map_data,recovery_rate = self$getRecoveryRate()){
       infected <- map_data$confirmed_cases
       
       new_recovered<- purrr::map_dbl(infected, function(total_infected){

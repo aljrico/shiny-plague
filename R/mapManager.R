@@ -34,6 +34,9 @@ MapManager <- R6::R6Class("MapManager",
                           private$initializeMap()
                           private$disease <- DiseaseManager$new(private$map_data)
                         },
+                        updateMapData = function(new_map_data){
+                          private$map_data <- new_map_data
+                        },
                         getMapData = function(){
                           private$map_data
                         },
@@ -42,6 +45,14 @@ MapManager <- R6::R6Class("MapManager",
                         },
                         getTotalInfected =function(){
                           total_infected <- private$map_data$confirmed_cases |> sum()
+                        },
+                        print = function() {
+                          infected_countries <- private$map_data[private$map_data$confirmed_cases > 0, ]$ISO3 |> as.character() |>  unique()
+                          total_infected <- private$map_data$confirmed_cases |> sum()
+                          
+                          cli::cli_alert_info(paste0("Infected Countries: ", infected_countries))
+                          cli::cli_alert_info(paste0("Total Infected:", total_infected))
+                          cli::cat_rule()
                         }
                       )
 )

@@ -17,7 +17,7 @@ mod_map_ui <- function(id = 'map') {
 #' cloropleth Server Function
 #'
 #' @noRd
-mod_map_server <- function(id = 'map', gameState){
+mod_map_server <- function(id = 'map', gameState, mapManager){
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     observeEvent(input$cloropleth_shape_click, {
@@ -61,12 +61,12 @@ mod_map_server <- function(id = 'map', gameState){
         # )
       })
     
-    observe({
+    observeEvent(gameState()$getTicks(),{
       leaflet::leafletProxy(
         mapId = 'cloropleth',
         data = map_data
       ) |> 
-        add_polygons(gameState()$getMapData()) 
+        add_polygons(mapManager$getMapData()) 
         
     })
   }) 
