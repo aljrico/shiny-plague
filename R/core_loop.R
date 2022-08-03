@@ -1,10 +1,9 @@
 core_loop <- function(gameState,mapManager,diseaseManager){
   moduleServer('core_loop', function(input, output, session){
-    loop <- reactiveTimer(100)
+    loop <- reactiveTimer(10000)
     observeEvent(loop(), {
-      gameState()$addTick()
-      gameState()$changeScore(1)
-      new_map_data <- diseaseManager$progressInfection(mapManager$getMapData())
+      # progressInfection
+      new_map_data <- diseaseManager$progressInfection(mapManager$getMapData(), gameState)
       mapManager$updateMapData(new_map_data)
     })
   })

@@ -21,10 +21,12 @@ DiseaseManager <- R6::R6Class(
       map_data[random_row, ]$confirmed_cases <- 1
       return(map_data)
     },
-    progressInfection = function(map_data){
+    progressInfection = function(map_data, gameState){
+      cli::cli_alert('progress infection')
       map_data <- private$recoverPopulation(map_data)
       map_data <- private$killPopulation(map_data)
-      map_data <- private$spreadInfection(map_data)
+      map_data <- private$spreadInfection(map_data, gameState)
+      print('DONE')
       map_data
     },
     setDeathProbability = function(death_probability){
@@ -65,7 +67,7 @@ DiseaseManager <- R6::R6Class(
       map_data$confirmed_cases <- map_data$confirmed_cases - new_deaths
       return(map_data)
     },
-    spreadInfection = function(map_data,infection_probability = self$getInfectionProbability()){
+    spreadInfection = function(map_data,gameState, infection_probability = self$getInfectionProbability()){
       in_country_spread_factor <- 1e-1
       cross_country_spread_factor <- 1e-3
       
@@ -86,6 +88,7 @@ DiseaseManager <- R6::R6Class(
         # In-country spread
         chance_of_spread <- in_country_spread_factor * (1 - proportion_infected)
         new_infections <- rbinom(1, total_infected, chance_of_spread)
+        if(new_infections > 0) gameState()$earnDNAPoints(p = 1)
         map_data[map_data$ISO3 == country, ]$confirmed_cases <<- total_infected + new_infections
         
         # Cross-country spread
@@ -100,6 +103,7 @@ DiseaseManager <- R6::R6Class(
             map_data[map_data$ISO3 == bc, ]$confirmed_cases
           
           if(existing_infected > 0) return(NULL)
+          gameState()$earnDNAPoints()
           country_row <- which(map_data$ISO3 == bc)
           map_data[country_row, ]$confirmed_cases <<- new_infected
           

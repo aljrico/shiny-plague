@@ -6,6 +6,8 @@ GameState <- R6::R6Class(
     health = NULL,
     reactiveDep = NULL,
     reactiveExpr = NULL,
+    dna_points_probability = 0.1,
+    dna_points = 0,
     count = 0,
     invalidate = function() {
       private$count <- private$count + 1
@@ -40,25 +42,14 @@ GameState <- R6::R6Class(
       #cli::cat_rule()
       cli::cli_alert("implement a GameState print method")
     },
-    addTick = function(){
-      private$ticks <- private$ticks + 1
-    },
-    getTicks = function(){
-      private$ticks
-    },
-    changeScore = function(add_score) {
-      private$score <- private$score + add_score
+    earnDNAPoints = function(n = 1, p = private$dna_points_probability){
+      print("adding points")
+      new_points <- rbinom(1, n, p)
+      private$dna_points <- private$dna_points + new_points
       private$invalidate()
     },
-    getScore = function() {
-      private$score
-    },
-    changeHealth = function(add_health) {
-      private$health <- private$health + add_health
-      private$invalidate()
-    },
-    getHealth = function() {
-      private$health
+    getDNAPoints = function(){
+      private$dna_points
     }
   )
 )
