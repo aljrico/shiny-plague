@@ -60,18 +60,22 @@ metrics_header_server <- function(id = 'dna_score', gameState){
   moduleServer(id, function(input, output, session){
     
     output$score <- renderText({
+      cli::cli_alert('update score')
       prettyNum(gameState()$getDNAPoints(),big.mark=",", preserve.width="none")
     })
     
     output$infected <- renderText({
+      cli::cli_alert('update infected')
       prettyNum(gameState()$getTotalInfected(),big.mark=",", preserve.width="none")
     })
     
     output$deaths <- renderText({
+      cli::cli_alert('update deaths')
       prettyNum(gameState()$getTotalDeaths(),big.mark=",", preserve.width="none")
     })
     
     output$recovered <- renderText({
+      cli::cli_alert('update recovered')
       prettyNum(gameState()$getTotalRecovered(),big.mark=",", preserve.width="none")
     })
   })

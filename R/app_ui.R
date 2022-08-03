@@ -11,6 +11,8 @@ app_ui <- function(request) {
     # Your application UI logic 
     fluidPage(
       metrics_header_ui(),
+      shinyjs::useShinyjs(),
+      h1("shiny.plague"),
       mod_map_ui(),
     )
   )
@@ -40,4 +42,3 @@ golem_add_external_resources <- function(){
     # for example, you can add shinyalert::useShinyalert() 
   )
 }
-

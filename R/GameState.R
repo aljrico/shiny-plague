@@ -21,12 +21,14 @@ GameState <- R6::R6Class(
       invisible()
     },
     initializeData = function(){
+      cli::cli_alert('initialize data')
       data('map_data')
       private$map_data <- map_data
       private$sproutFirstInfected()
       private$createBorderMapping()
     },
     killPopulation = function(death_probability = self$getDeathProbability()){
+      cli::cli_alert('kill population')
       # of the infected population, there is a death_probability chance that any one person might die
       infected <- private$map_data$confirmed_cases
       
@@ -42,7 +44,7 @@ GameState <- R6::R6Class(
       
     },
     spreadInfection = function(infection_probability = self$getInfectionProbability()){
-      
+      cli::cli_h3('spread infection')
       in_country_spread_factor <- 1e-1
       cross_country_spread_factor <- 1e-3
       
@@ -61,12 +63,14 @@ GameState <- R6::R6Class(
         proportion_infected <- total_infected / total_population
         
         # In-country spread
+        cli::cli_alert('in-country spread')
         chance_of_spread <- in_country_spread_factor * (1 - proportion_infected)
         new_infections <- rbinom(1, total_infected, chance_of_spread)
         if(new_infections > 0) self$earnDNAPoints(p = 1)
         private$map_data[private$map_data$ISO3 == country, ]$confirmed_cases <- total_infected + new_infections
         
         # Cross-country spread
+        cli::cli_alert('cross-country spread')
         bordering_countries <- private$borders[[country]]
         sapply(bordering_countries, function(bc){
           chance_of_spread <- sqrt(proportion_infected * cross_country_spread_factor)
@@ -85,6 +89,7 @@ GameState <- R6::R6Class(
       })
     },
     recoverPopulation = function(recovery_rate = self$getRecoveryRate()){
+      cli::cli_alert('recover population')
       infected <- private$map_data$confirmed_cases
       
       new_recovered<- purrr::map_dbl(infected, function(total_infected){
@@ -206,10 +211,12 @@ GameState <- R6::R6Class(
       private$map_data
     },
     progressInfection = function(){
+      cli::cli_alert('progress infection')
       self$print()
       private$recoverPopulation()
       private$killPopulation()
       private$spreadInfection()
+      print('DONE')
     },
     earnDNAPoints = function(n = 1, p = private$dna_points_probability){
       new_points <- rbinom(1, n, p)
