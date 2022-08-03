@@ -189,6 +189,12 @@ GameState <- R6::R6Class(
       cli::cli_alert_info(paste0("Total Infected:", total_infected))
       cli::cat_rule()
     },
+    buyCard = function(card) {
+      self$spendDNAPoints(card$getCost())
+      gameState()$setDeathProbability(Card$getLethalityImpact())
+      gameState()$setInfectionProbability(Card$getInfectiousnessImpact())
+      gameState()$setRecoveryRate(Card$getVisibilityImpact())
+    },
     setDeathProbability = function(death_probability){
       private$death_probability <- death_probability
     },
@@ -212,16 +218,21 @@ GameState <- R6::R6Class(
     },
     progressInfection = function(){
       cli::cli_alert('progress infection')
-      self$print()
       private$recoverPopulation()
       private$killPopulation()
       private$spreadInfection()
-      print('DONE')
     },
     earnDNAPoints = function(n = 1, p = private$dna_points_probability){
       new_points <- rbinom(1, n, p)
       private$dna_points <- private$dna_points + new_points
       private$invalidate()
+    },
+    spendDNAPoints = function(amount){
+      if(private$dna_points < amount){
+        cli::cli_alert_danger("Trying to spend more DNA points than what we have")
+        stop("Trying to spend more DNA points than what we have")
+      }
+      private$dna_points <- private$dna_points - new_points
     },
     getDNAPoints = function(){
       private$dna_points

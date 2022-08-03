@@ -35,19 +35,13 @@ mod_disease_shop_card_server <- function(id, gameState, Card){
 
       shinyjs::toggleCssClass("card", class = "unavailable", condition = !can_afford)
       shinyjs::toggleState(paste0(ns("card"), "_buy"), asis = TRUE, condition = can_afford)
-
     })
     
     observeEvent(input$card_buy,{
       cli::cli_alert('buying card')
-      # subtract the cost of the card from the player
-      # this method is not yet implemented
-      #gameState()$spendDNA(card$getCost())
       
       # update the disease attributes
-      gameState()$setDeathProbability(Card$getLethalityImpact())
-      gameState()$setInfectionProbability(Card$getInfectiousnessImpact())
-      gameState()$setRecoveryRate(Card$getVisibilityImpact())
+      gameState()$buyCard(Card)
 
       # disable the card permanently 
       shinyjs::removeCssClass("card", class = "available")
