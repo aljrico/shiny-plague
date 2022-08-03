@@ -81,7 +81,7 @@ CardsManager <- R6::R6Class(
           return(x)
         }
       })
-      result[[which(!is.null(result))]]
+      result[!sapply(result, is.null)][[1]]
     },
     getCardStack = function(){
       order_cards <- function(cards){
