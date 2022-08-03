@@ -36,6 +36,12 @@ MapManager <- R6::R6Class("MapManager",
                         },
                         getMapData = function(){
                           private$map_data
+                        },
+                        getInfectedCountries =function(){
+                          infected_countries <- private$map_data[private$map_data$confirmed_cases > 0, ]$ISO3 |> as.character() |>  unique()
+                        },
+                        getTotalInfected =function(){
+                          total_infected <- private$map_data$confirmed_cases |> sum()
                         }
                       )
 )
