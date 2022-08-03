@@ -17,7 +17,7 @@ mod_map_ui <- function(id = "map") {
 #' cloropleth Server Function
 #'
 #' @noRd
-mod_map_server <- function(id = "map", gameState, cardStack) {
+mod_map_server <- function(id = "map", gameState) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     observeEvent(input$cloropleth_shape_click, {
@@ -72,7 +72,7 @@ mod_map_server <- function(id = "map", gameState, cardStack) {
     })
 
     cli::cli_alert("trigger shop server")
-    disease_shop_modal_server(ns("shop_modal"), gameState, reactive(input$disease_design), cardStack)
+    disease_shop_modal_server(ns("shop_modal"), gameState, reactive(input$disease_design))
   })
 }
 

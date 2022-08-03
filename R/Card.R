@@ -9,6 +9,7 @@ Card <- R6::R6Class(
     state = NULL
   ),
   public = list(
+    id = NULL,
     initialize = function(category, cost, lethality, infectiousness, visibility, state = c("unavailable", "available", "cant_afford")) {
       cli::cli_alert('creating card')
       private$category  <- category 
@@ -16,10 +17,14 @@ Card <- R6::R6Class(
       private$lethality  <- lethality 
       private$infectiousness  <- infectiousness 
       private$visibility <- visibility
-      private$state <- match.arg(state)
+      private$state <- 'available'
+      self$id <- digest::digest(self, algo = 'murmur32')
     },
     setState = function(new_state = c("available", "cant_afford","unavailable")){
       private$state <-  match.arg(new_state)
+    },
+    getCategory = function(){
+      private$category
     },
     getState = function(){
       private$state
@@ -46,8 +51,12 @@ Card <- R6::R6Class(
         state = private$state
       )
     },
+    isAvailable = function(){
+      self$getState() != 'unavailable'
+    },
     print = function(){
       cat("Card: \n")
+      cat(" id: ", self$id, "\n", sep = "")
       cat(" category: ", private$category, "\n", sep = "")
       cat(" cost: ", private$cost, "\n", sep = "" )
       cat(" lethality: ", private$lethality, "\n", sep = "" )
@@ -55,41 +64,6 @@ Card <- R6::R6Class(
       cat(" visibility: ", private$visibility, "\n", sep = "" )
       cat(" state: ", private$state, "\n", sep = "" )
       invisible(self)
-    }
-  )
-)
-
-CardStack <- R6::R6Class(
-  "CardStack",
-  private = list(
-    shop_card_stack = NULL,
-    init_card_stack = function(n_cards){
-
-      cards <- data.frame(
-        category = rep(c("Sneezing", "Coughing", "Pooping"), length.out = n_cards),
-        cost = sample(1:3, n_cards, replace = TRUE),
-        lethality = sample(-20:20, n_cards),
-        infectiousness = sample(-20:20, n_cards),
-        visibility = sample(-20:20, n_cards),
-        state = rep(c("unavailable", "available", "cant_afford"), length.out = n_cards)
-      )
-      
-      card_list <- do.call(Map, c(f= Card$new, cards)) 
-      names(card_list) <- NULL
-      return(card_list)
-    }
-  ),
-  public = list(
-    initialize = function(n_cards = 10) {
-      cli::cli_h2('creating card stack')
-      private$shop_card_stack <- private$init_card_stack(n_cards)
-    },
-    getCardStack = function(){
-      order_cards <- function(cards){
-        cards[order(sapply(cards, function(x) x$getCost()))]
-      }
-      private$shop_card_stack |> 
-        order_cards()
     }
   )
 )

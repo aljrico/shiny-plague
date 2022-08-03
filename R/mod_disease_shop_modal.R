@@ -17,12 +17,12 @@ disease_shop_modal_ui <- function(id) {
 #' disease_shop_modal Server Functions
 #'
 #' @noRd 
-disease_shop_modal_server <- function(id,gameState, trigger, cardStack){
+disease_shop_modal_server <- function(id,gameState, trigger){
   moduleServer(id, function(input, output, session) {
     cli::cli_alert('disease shop server')
     
-    cards <- cardStack$getCardStack()
-    card_indices <- 1:length(cards)
+    cards <- CardsManager$new()$getCardStack()
+    card_ids <- sapply(cards, function(x) x$id)
     
     # load the namespace
     ns <- session$ns
@@ -49,14 +49,13 @@ disease_shop_modal_server <- function(id,gameState, trigger, cardStack){
     # Show modal when button is clicked.
     observeEvent(trigger(), {
       cli::cli_alert('show shop modal')
-      cards_ui <- purrr::map(card_indices, function(id){ mod_disease_shop_card_ui(ns(id))})
+      cards_ui <- purrr::map(card_ids, function(id){ mod_disease_shop_card_ui(ns(id))})
       
       showModal(disease_shop_modal(cards_ui))
     })
     
-    lapply(card_indices, function(index){
-      mod_disease_shop_card_server(index, gameState, cards[[index]])
+    lapply(card_ids, function(card_id){
+      mod_disease_shop_card_server(card_id, gameState, card_id)
     })
-    # purrr::walk(card_indices, function(index) {mod_disease_shop_card_server(index, gameState, cards[[index]])})
   })
 }
