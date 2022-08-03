@@ -85,7 +85,11 @@ CardStack <- R6::R6Class(
       private$shop_card_stack <- private$init_card_stack(n_cards)
     },
     getCardStack = function(){
-      private$shop_card_stack
+      order_cards <- function(cards){
+        cards[order(sapply(cards, function(x) x$getCost()))]
+      }
+      private$shop_card_stack |> 
+        order_cards()
     }
   )
 )
