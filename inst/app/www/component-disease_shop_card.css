@@ -11,7 +11,7 @@
 /* grey out card if unavailable*/
 .shop-card-container.disabled {
   pointer-events: none;
-  opacity: 0.2;
+  opacity: 0.5;
   color: rgba(143,153,168,0.75);
   background-color: #f8f9fa;
   border-color: transparent;
