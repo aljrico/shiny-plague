@@ -7,7 +7,7 @@ diseaseShopCard <- function(ns, category, cost, lethality, infectiousness, visib
     width = 3,
     div(
       id = ns('container'), class = c("shop-card-container", state, disabled),
-      div(id = ns('category'), category, class = "shop-card-category"),
+      h5(id = ns('category'), category, class = "shop-card-category"),
       hr(class = "shop-card-divider"), # replace this with a border
       div(
         class = "shop-card-body",
@@ -52,7 +52,6 @@ diseaseShopCard <- function(ns, category, cost, lethality, infectiousness, visib
 buyButton <- function(id, disabled){
   actionButton(
     inputId = id,
-    label = "Buy",
-    class = disabled
+    label = "Buy"
   )
 }
