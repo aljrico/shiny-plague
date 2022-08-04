@@ -1,1 +1,9 @@
- 
+body {
+  color: #1f2430;
+  background-color: #fafafa;
+}
+
+.col-sm-3 {
+    width: 25%;
+    min-width: 200px;
+}

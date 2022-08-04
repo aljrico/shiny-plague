@@ -10,7 +10,9 @@ app_ui <- function(request) {
     golem_add_external_resources(),
     # Your application UI logic 
     fluidPage(
-      h1("shiny.plague"),
+      bigTitle("Shiny Plague"),
+      bigDescription("Design the perfect disease that will obliterate humanity"),
+      shinyjs::useShinyjs(),
       mod_map_ui(),
       disease_indicators_ui()
     )
@@ -41,4 +43,3 @@ golem_add_external_resources <- function(){
     # for example, you can add shinyalert::useShinyalert() 
   )
 }
-

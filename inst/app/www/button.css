@@ -1,0 +1,15 @@
+ .custom-button {
+   color: inherit;
+   padding: 4px;
+   padding-right: 8px;
+   padding-left: 8px;
+   background-color: transparent;
+   border-radius: 2px;
+   border-color: transparent;
+   box-shadow: none;
+ }
+ 
+ .custom-button:hover {
+   background-color: rgba(143,153,168,.15);
+   border: none;
+ }

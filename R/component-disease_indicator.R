@@ -39,8 +39,7 @@
 #'  shinyApp(ui = ui, server = server)
 #'}
 diseaseIndicator <- function(id, label, value) {
-  stopifnot(value >= 0,
-            value <= 100)
+  stopifnot(value >= 0, value <= 100)
   
   progress_colour <- .progress_bar_colours(value)
   
@@ -64,16 +63,23 @@ updateDiseaseIndicator <- function(session = getDefaultReactiveDomain(), id, val
   
   colour <- .progress_bar_colours(value)
   
-  session$sendCustomMessage(type = message,
-                            message = list(id = id, 
-                                           value = value, 
-                                           label = label,
-                                           colour = colour))
+  session$sendCustomMessage(
+    type = message,
+    message = list(
+      id = id,
+      value = value, 
+      label = label,
+      colour = colour
+      )
+    )
 }
 
 .progress_bar_colours <- function(value){
-  progress_colour <- dplyr::case_when(value < 33 ~ "#478ACC", #blue
-                                      value < 66 ~ "#8A9199CC", #grey
-                                      TRUE ~ "#E65050") #red
+  progress_colour <- 
+    dplyr::case_when(
+      value < 33 ~ "#478ACC", #blue
+      value < 66 ~ "#8A9199CC", #grey
+      TRUE ~ "#E65050" #red
+      ) 
   
 }

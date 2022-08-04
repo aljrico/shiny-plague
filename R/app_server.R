@@ -9,5 +9,4 @@ app_server <- function( input, output, session ) {
   core_loop(gameState)
   mod_map_server(gameState = gameState)
   disease_indicators_server(gameState = gameState)
-  
 }
