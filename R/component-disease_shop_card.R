@@ -3,7 +3,7 @@ diseaseShopCard <- function(id, category, cost, lethality, infectiousness, visib
   column(
     width = 3,
     div(
-      id = id, class = c("shop-card-container", state),
+      id = id, class = c("shop-card-container", state, disabled),
       div(id = paste0(id, "-category"), category, class = "shop-card-category"),
       hr(class = "shop-card-divider"), # replace this with a border
       div(
@@ -33,7 +33,7 @@ diseaseShopCard <- function(id, category, cost, lethality, infectiousness, visib
       div(
         class = "shop-card-footer",
         div(
-          class = "footer-left",
+          class = c("footer-left", disabled),
           span(class = "shop-card-cost", icon("dna"), cost)
         ),
         div(

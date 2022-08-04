@@ -7,12 +7,23 @@
 #' @noRd 
 #'
 #' @importFrom shiny NS tagList 
-mod_disease_shop_card_ui <- function(id){
+mod_disease_shop_card_ui <- function(id, card){
   ns <- NS(id)
+  specs <- card$getCard()
   tagList(
-    uiOutput(ns("card_placeholder")),
+    diseaseShopCard(
+      id = ns("card"), 
+      category = specs$category, 
+      cost = specs$cost, 
+      lethality = specs$lethality, 
+      infectiousness = specs$infectiousness, 
+      visibility = specs$visibility, 
+      state = specs$state, 
+      disabled = FALSE
+    )
   )
 }
+
 
 #' disease_shop_card Server Functions
 #'
@@ -21,33 +32,20 @@ mod_disease_shop_card_server <- function(id, gameState, card_id){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
     
-    canAfford <- function(){
-      gameState()$getDNAPoints() >= card()$getCost()
-    }
-    
-    card <- reactive({
-      gameState()$cardsManager$getCard(card_id)
+    card <- CardsManager$new()$getCard(card_id)
+
+    canAfford <- reactive({
+      gameState()$getDNAPoints() >= card$getCost()
     })
-    # create card
-    output$card_placeholder <- renderUI({
-      if(is.null(card())) return(NULL)
-      cli::cli_alert('render card')
-      if(card()$isAvailable()){
-        specs <- card()$getCard()
-        diseaseShopCard(
-          id = ns("card"), 
-          category = specs$category, 
-          cost = specs$cost, 
-          lethality = specs$lethality, 
-          infectiousness = specs$infectiousness, 
-          visibility = specs$visibility, 
-          state = specs$state, 
-          disabled = canAfford()
-        )
-      }else{
-        cli::cli_alert_warning("card not available")
-        return(NULL)
-      }
+    
+    isCardAvailable <- reactive({
+      gameState()$cardsManager$getCard(card_id)$isAvailable()
+    })
+    
+    observe({
+      if(isCardAvailable()) shinyjs::show('card')
+      if(!isCardAvailable()) shinyjs::hide('card')
+      shinyjs::toggleCssClass("card", class = "disabled", condition = !canAfford())
     })
     
     
@@ -61,13 +59,7 @@ mod_disease_shop_card_server <- function(id, gameState, card_id){
     
     observeEvent(input$card_buy,{
       cli::cli_alert('buying card')
-      
-      # update the disease attributes
-      gameState()$buyCard(card())
-
-      # disable the card permanently 
-      shinyjs::removeCssClass("card", class = "available")
-      shinyjs::addCssClass("card", class = "unavailable")
+      gameState()$buyCard(card)
     })
     
   })

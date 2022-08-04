@@ -32,7 +32,7 @@ disease_shop_modal_server <- function(id,gameState, trigger){
       
       # build the modal
       modalDialog(
-        tagList(
+        fluidPage(
           ...,
         ),
         
@@ -45,12 +45,11 @@ disease_shop_modal_server <- function(id,gameState, trigger){
       )
     }
     
-    
     # Show modal when button is clicked.
     observeEvent(trigger(), {
-      cli::cli_alert('show shop modal')
-      cards_ui <- purrr::map(card_ids, function(id){ mod_disease_shop_card_ui(ns(id))})
-      
+      cards_ui <- lapply(card_ids, function(id){
+        mod_disease_shop_card_ui(ns(id), card = gameState()$cardsManager$getCard(id))
+      })
       showModal(disease_shop_modal(cards_ui))
     })
     

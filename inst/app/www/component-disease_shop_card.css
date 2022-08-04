@@ -9,9 +9,11 @@
 }
 
 /* grey out card if unavailable*/
-.shop-card-container.unavailable {
-  filter: grayscale(100%);
-  background-color: #E6E9F0;
+.shop-card-container.disabled {
+  pointer-events: none;
+  font-color: red;
+  color: red !important;
+  background-color: #ccc;
   box-shadow: 0 0px 0px 0 rgba(0, 0, 0, 0);
 }
 
