@@ -12,24 +12,21 @@ diseaseShopCard <- function(ns, category, cost, lethality, infectiousness, visib
       div(
         class = "shop-card-body",
         div(
-          id = ns("attributes"), class = "shop-card-attribute",
-          tags$ul(
-            class = "shop-card-attribute-ul",
-            tags$li(
-              class = "shop-card-attribute-li",
-              icon("skull", class = "shop-card-attribute-icon"),
-              p(lethality, class = "shop-card-attribute-category")
-            ),
-            tags$li(
-              class = "shop-card-attribute-li",
-              icon("head-side-cough", class = "shop-card-attribute-icon"),
-              p(infectiousness, class = "shop-card-attribute-category")
-            ),
-            tags$li(
-              class = "shop-card-attribute-li",
-              icon("eye", class = "shop-card-attribute-icon"),
-              p(visibility, class = "shop-card-attribute-category")
-            ),
+          id = ns("attributes"), class = "shop-card-attributes",
+          div(
+            class = 'shop-card-attribute',
+            p(icon("head-side-cough", class = "shop-card-attribute-icon"), "Infectivity: "),
+            p(infectiousness, class = "shop-card-attribute-category")
+          ),
+          div(
+            class = 'shop-card-attribute',
+            p(icon("skull", class = "shop-card-attribute-icon"), "Lethality: "),
+            p(lethality, class = "shop-card-attribute-category")
+          ),
+          div(
+            class = 'shop-card-attribute',
+            p(icon("eye", class = "shop-card-attribute-icon"), "Visibility: "),
+            p(visibility, class = "shop-card-attribute-category")
           )
         )
       ),

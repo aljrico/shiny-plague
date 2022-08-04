@@ -11,8 +11,9 @@
 /* grey out card if unavailable*/
 .shop-card-container.disabled {
   pointer-events: none;
+  opacity: 0.2;
   font-color: red;
-  color: red !important;
+  color: red;
   background-color: #ccc;
   box-shadow: 0 0px 0px 0 rgba(0, 0, 0, 0);
 }
@@ -25,7 +26,11 @@
 .shop-card-body{
   overflow: hidden;
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
+  margin: 0;
+  padding: 0;
 }
 
 .shop-card-footer{
@@ -58,6 +63,25 @@
 
 .shop-card-divider{
   border-top: 1px solid;
+}
+
+.shop-card-attributes{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding-inline: 10px;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.shop-card-attribute{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
 }
 
 
