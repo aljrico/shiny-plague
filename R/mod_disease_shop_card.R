@@ -7,19 +7,21 @@
 #' @noRd 
 #'
 #' @importFrom shiny NS tagList 
-mod_disease_shop_card_ui <- function(id, card){
+mod_disease_shop_card_ui <- function(id, card, gameState){
   ns <- NS(id)
   specs <- card$getCard()
-  tagList(
+  canAfford <- gameState$getDNAPoints() >= card$getCost()
+  if(!card$isAvailable()) return(NULL)
+  div(
     diseaseShopCard(
-      id = ns("card"), 
+      ns = ns, 
       category = specs$category, 
       cost = specs$cost, 
       lethality = specs$lethality, 
       infectiousness = specs$infectiousness, 
       visibility = specs$visibility, 
       state = specs$state, 
-      disabled = FALSE
+      disabled = !canAfford
     )
   )
 }
@@ -42,24 +44,20 @@ mod_disease_shop_card_server <- function(id, gameState, card_id){
       gameState()$cardsManager$getCard(card_id)$isAvailable()
     })
     
-    observe({
-      if(isCardAvailable()) shinyjs::show('card')
-      if(!isCardAvailable()) shinyjs::hide('card')
-      shinyjs::toggleCssClass("card", class = "disabled", condition = !canAfford())
+    handleAvailability <- reactive({
+      if(isCardAvailable()) shinyjs::show('container')
+      if(!isCardAvailable()) shinyjs::hide('container')
+      shinyjs::toggleCssClass("container", class = "disabled", condition = !canAfford())
     })
     
+    observe({
+      handleAvailability()
+    })
     
-    #check if player can afford the card item and toggle state accordingly
-    # observeEvent(gameState(),{
-    #   cli::cli_alert('check cards affordability')
-    #   can_afford <- gameState()$getDNAPoints() >= card()$getCost()
-    #   shinyjs::toggleCssClass("card", class = "unavailable", condition = !can_afford)
-    #   shinyjs::toggleState(paste0(ns("card"), "_buy"), asis = TRUE, condition = can_afford)
-    # })
-    
-    observeEvent(input$card_buy,{
+    observeEvent(input$buy,{
       cli::cli_alert('buying card')
       gameState()$buyCard(card)
+      handleAvailability()
     })
     
   })

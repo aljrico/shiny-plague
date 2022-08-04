@@ -48,7 +48,7 @@ disease_shop_modal_server <- function(id,gameState, trigger){
     # Show modal when button is clicked.
     observeEvent(trigger(), {
       cards_ui <- lapply(card_ids, function(id){
-        mod_disease_shop_card_ui(ns(id), card = gameState()$cardsManager$getCard(id))
+        mod_disease_shop_card_ui(ns(id), card = gameState()$cardsManager$getCard(id), gameState = gameState())
       })
       showModal(disease_shop_modal(cards_ui))
     })

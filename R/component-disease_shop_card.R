@@ -1,15 +1,18 @@
-diseaseShopCard <- function(id, category, cost, lethality, infectiousness, visibility, state, disabled = TRUE) {
+#'
+#'
+#' 
+diseaseShopCard <- function(ns, category, cost, lethality, infectiousness, visibility, state, disabled = TRUE) {
   disabled <- if (disabled) ("disabled") else ""
   column(
     width = 3,
     div(
-      id = id, class = c("shop-card-container", state, disabled),
-      div(id = paste0(id, "-category"), category, class = "shop-card-category"),
+      id = ns('container'), class = c("shop-card-container", state, disabled),
+      div(id = ns('category'), category, class = "shop-card-category"),
       hr(class = "shop-card-divider"), # replace this with a border
       div(
         class = "shop-card-body",
         div(
-          id = paste0(id, "-attributes"), class = "shop-card-attribute",
+          id = ns("attributes"), class = "shop-card-attribute",
           tags$ul(
             class = "shop-card-attribute-ul",
             tags$li(
@@ -38,13 +41,21 @@ diseaseShopCard <- function(id, category, cost, lethality, infectiousness, visib
         ),
         div(
           class = "footer-right",
-          actionButton(
-            inputId = paste0(id, "_buy"),
-            label = "Buy",
-            class = disabled
+          buyButton(
+            id = ns('buy'),
+            disabled = disabled
           )
         )
       )
     )
+  )
+}
+
+
+buyButton <- function(id, disabled){
+  actionButton(
+    inputId = id,
+    label = "Buy",
+    class = disabled
   )
 }
