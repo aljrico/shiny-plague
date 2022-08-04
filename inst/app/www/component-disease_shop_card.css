@@ -12,14 +12,14 @@
 .shop-card-container.disabled {
   pointer-events: none;
   opacity: 0.2;
-  color: #f28779;
+  color: rgba(143,153,168,0.75);
   background-color: #f8f9fa;
+  border-color: transparent;
   box-shadow: 0 0px 0px 0 rgba(0, 0, 0, 0);
 }
 
 .shop-card-category{
-  transform: translateY(50%);
-  padding-left: 5px;
+  text-align: center;
 }
 
 .shop-card-body{
@@ -61,6 +61,7 @@
 }
 
 .shop-card-divider{
+  margin-top: 12px;
   border-top: 1px solid rgba(143,153,168,0.25);
 }
 
