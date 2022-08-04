@@ -34,7 +34,7 @@
 
 .shop-card-footer{
   padding: 3px;
-  border-top: 1px solid;
+  border-top: 1px solid rgba(143,153,168,0.25);
 }
 .shop-card-footer:after, shop-card-footer:before{
   content:'';
@@ -61,7 +61,7 @@
 }
 
 .shop-card-divider{
-  border-top: 1px solid;
+  border-top: 1px solid rgba(143,153,168,0.25);
 }
 
 .shop-card-attributes{

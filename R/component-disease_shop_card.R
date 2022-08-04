@@ -52,6 +52,7 @@ diseaseShopCard <- function(ns, category, cost, lethality, infectiousness, visib
 buyButton <- function(id, disabled){
   actionButton(
     inputId = id,
-    label = "Buy"
+    label = "Buy",
+    class = 'custom-button'
   )
 }
