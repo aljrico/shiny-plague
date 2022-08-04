@@ -33,6 +33,8 @@ disease_shop_modal_server <- function(id,gameState, trigger){
       # build the modal
       modalDialog(
         fluidPage(
+          bigTitle("Disease Design"),
+          bigDescription("Spend DNA points to make the disease evolve. Choose wisely"),
           ...,
         ),
         
