@@ -13,8 +13,7 @@ app_ui <- function(request) {
       bigTitle("Shiny Plague"),
       bigDescription("Design the perfect disease that will obliterate humanity"),
       shinyjs::useShinyjs(),
-      mod_map_ui(),
-      disease_indicators_ui()
+      mod_map_ui()
     )
   )
 }

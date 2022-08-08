@@ -19,7 +19,8 @@ disease_shop_modal_ui <- function(id) {
 #' @noRd 
 disease_shop_modal_server <- function(id,gameState, trigger){
   moduleServer(id, function(input, output, session) {
-    cli::cli_alert('disease shop server')
+    
+    disease_indicators_server("disease_indicators", gameState)
     
     cards <- CardsManager$new()$getCardStack()
     card_ids <- sapply(cards, function(x) x$id)
@@ -41,6 +42,7 @@ disease_shop_modal_server <- function(id,gameState, trigger){
         size = "l",
         easyClose = TRUE,
         footer = tagList(
+          disease_indicators_ui(ns('disease_indicators')),
           modalButton("Cancel"),
         )
         
