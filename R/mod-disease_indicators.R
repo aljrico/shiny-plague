@@ -10,11 +10,11 @@ disease_indicators_ui <- function(id = 'infected_score'){
       ),
       column(
         width = 4,
-        diseaseIndicator(ns("infectiousness"), "infectiousness",value = 10)
+        diseaseIndicator(ns("infectiousness"), "infectiousness",value = 0)
       ),
       column(
         width = 4,
-        diseaseIndicator(ns("visibility"), "visibility",value = 5)
+        diseaseIndicator(ns("visibility"), "visibility",value = 0)
       )
     )
   )
@@ -23,36 +23,10 @@ disease_indicators_ui <- function(id = 'infected_score'){
 disease_indicators_server <- function(id = 'infected_score', gameState){
   moduleServer(id, function(input, output, session){
     ns <- session$ns
-    
-    new_lethality <- reactive({
-      invalidateLater(5000)
-      sample(1:100, 1)
+    observe({
+      updateDiseaseIndicator(session, id = ns("infectiousness"), value = 10 * gameState()$getInfectiousness())
+      updateDiseaseIndicator(session, id = ns("lethality"), value = 10 * gameState()$getLethality())
+      updateDiseaseIndicator(session, id = ns("visibility"), value = 10 * gameState()$getVisibility())
     })
-    
-    observeEvent(new_lethality(),{
-      print(paste0("lethality indicator: ", new_lethality()))
-      updateDiseaseIndicator(session, id = ns("lethality"), value = new_lethality())
-    })
-    
-    new_infectiousness <- reactive({
-      invalidateLater(5000)
-      sample(1:100, 1)
-    })
-    
-    observeEvent(new_infectiousness(),{
-      updateDiseaseIndicator(session, id = ns("infectiousness"), value = new_infectiousness())
-    })
-    
-    new_visibility <- reactive({
-      invalidateLater(5000)
-      sample(1:100, 1)
-    })
-    
-    observeEvent(new_visibility(),{
-      updateDiseaseIndicator(session, id = ns("visibility"), value = new_visibility())
-    })
-    
-    
-    
   })
 }

@@ -227,11 +227,14 @@ GameState <- R6::R6Class(
     setRecoveryRate = function(recovery_rate) {
       private$recovery_rate <- recovery_rate
     },
-    getDeathProbability = function() {
+    getLethality = function() {
       private$lethality
     },
-    getInfectionProbability = function() {
+    getInfectiousness = function() {
       private$infectiousness
+    },
+    getVisibility = function(){
+      private$visibility
     },
     getRecoveryRate = function() {
       private$recovery_rate
