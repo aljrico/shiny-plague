@@ -44,12 +44,16 @@ diseaseIndicator <- function(id, label, value) {
   style <- glue::glue(HTML("
     width: {value}% ;
     background-color: {progress_colour};"))
-
+  
   div(
-    id = id, class = "progress",
+    class = "progress-container",
+    h5(stringr::str_to_title(label)),
     div(
-      id = paste0(id, "-value"), class = "progress-bar", style = style,
-      div(id = paste0(id, "-label"), class = "progress-text", label)
+      id = id,
+      class = "progress",
+      div(
+        id = paste0(id, "-value"), class = "progress-bar", style = style
+      )
     )
   )
 }
@@ -75,7 +79,13 @@ updateDiseaseIndicator <- function(session = getDefaultReactiveDomain(), id, val
 }
 
 .progress_bar_colours <- function(value, palette = "lethality") {
-  if(palette == "lethality") return("#1F2430")
-  if(palette == "infectiousness") return("#F2AE49")
-  if(palette == "visibility") return("#55B4D4")
+  if (palette == "lethality") {
+    return("#1F2430")
+  }
+  if (palette == "infectiousness") {
+    return("#F2AE49")
+  }
+  if (palette == "visibility") {
+    return("#55B4D4")
+  }
 }

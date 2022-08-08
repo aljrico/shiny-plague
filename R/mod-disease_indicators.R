@@ -1,21 +1,11 @@
 disease_indicators_ui <- function(id = 'infected_score'){
   ns <- shiny::NS(id)
-  
-  tagList(
-    uiOutput(ns('score')),
-    fluidRow(
-      column(
-        width = 4,
-        diseaseIndicator(ns("lethality"), "lethality",value = 0)
-      ),
-      column(
-        width = 4,
-        diseaseIndicator(ns("infectiousness"), "infectiousness",value = 0)
-      ),
-      column(
-        width = 4,
-        diseaseIndicator(ns("visibility"), "visibility",value = 0)
-      )
+  return(
+    div(
+      style = "display: flex; flex-diretion: row; justify-content: space-around; align-items: center; width: 100%",
+      diseaseIndicator(ns("lethality"), "lethality",value = 0),
+      diseaseIndicator(ns("infectiousness"), "infectiousness",value = 0),
+      diseaseIndicator(ns("visibility"), "visibility",value = 0)
     )
   )
 }

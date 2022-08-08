@@ -1,4 +1,13 @@
+.progress-container {
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+
 .progress {
+  width: 100%;
     padding: 4px;
     margin-top: 2px;
     height: 18px;
@@ -13,13 +22,4 @@
     background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.05));
     transition-property: width, background-color;
     box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.25), inset 0 1px rgba(255, 255, 255, 0.1);
-}
-.progress-text{
-  color:black;
-  font-weight: bold;
-  top: 25%;
-  left: 50%; 
-  transform: translateX(-50%)translateY(-50%);
-  position: absolute;
-  background-color:rgba(0, 0, 0, 0);
 }
