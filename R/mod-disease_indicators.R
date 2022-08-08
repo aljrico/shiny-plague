@@ -24,9 +24,9 @@ disease_indicators_server <- function(id = 'infected_score', gameState){
   moduleServer(id, function(input, output, session){
     ns <- session$ns
     observe({
-      updateDiseaseIndicator(session, id = ns("infectiousness"), value = 10 * gameState()$getInfectiousness())
-      updateDiseaseIndicator(session, id = ns("lethality"), value = 10 * gameState()$getLethality())
-      updateDiseaseIndicator(session, id = ns("visibility"), value = 10 * gameState()$getVisibility())
+      updateDiseaseIndicator(session, id = ns("infectiousness"), value = 10 * gameState()$getInfectiousness(), palette = "infectiousness")
+      updateDiseaseIndicator(session, id = ns("lethality"), value = 10 * gameState()$getLethality(), palette = "lethality")
+      updateDiseaseIndicator(session, id = ns("visibility"), value = 10 * gameState()$getVisibility(), palette = "visibility")
     })
   })
 }

@@ -12,7 +12,8 @@ updateDiseaseIndicator(
   session = getDefaultReactiveDomain(),
   id,
   value,
-  label = NULL
+  label = NULL,
+  palette = NULL
 )
 }
 \arguments{
@@ -32,29 +33,27 @@ Create a progress bar to visualise disease indicator
 }
 \examples{
 if (interactive()) {
- 
- library("shiny")
- 
- ui <- fluidPage(
-   
-   fluidRow(
-     column(
-       width = 3,
-       diseaseIndicator("lethality", "lethality",value = 55)
-     )
-   )
- )
- 
- server <- function(input, output, session) {
-   new_value <- reactive({
-     invalidateLater(3000)
-     sample(1:100, 1)
-   })
-   
-   observeEvent(new_value(),{
-     updateDiseaseIndicator(session, id = "lethality", value = new_value())
-   })
- }
- shinyApp(ui = ui, server = server)
+  library("shiny")
+
+  ui <- fluidPage(
+    fluidRow(
+      column(
+        width = 3,
+        diseaseIndicator("lethality", "lethality", value = 55)
+      )
+    )
+  )
+
+  server <- function(input, output, session) {
+    new_value <- reactive({
+      invalidateLater(3000)
+      sample(1:100, 1)
+    })
+
+    observeEvent(new_value(), {
+      updateDiseaseIndicator(session, id = "lethality", value = new_value())
+    })
+  }
+  shinyApp(ui = ui, server = server)
 }
 }
