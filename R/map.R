@@ -10,6 +10,7 @@
 mod_map_ui <- function(id = "map") {
   ns <- NS(id)
   tagList(
+    leafletjs,
     leaflet::leafletOutput(outputId = ns("cloropleth"), height = 500)
   )
 }
@@ -24,7 +25,7 @@ mod_map_server <- function(id = "map", gameState) {
       cli::cli_alert("click")
       print(input$cloropleth_shape_click$id)
     })
-
+    
     output$cloropleth <-
       leaflet::renderLeaflet({
         cli::cli_alert("render map")
@@ -36,12 +37,12 @@ mod_map_server <- function(id = "map", gameState) {
             controlZoom = FALSE
           )
         }
-
+        
         # Design legend
         legend_hint <- function() {
           tags$p("Click on a specific country for more details.")
         }
-
+        
         # Build Cloropleth
         leaflet::leaflet(map_data, options = leaflet_options()) |>
           leaflet::setMaxBounds(
@@ -59,25 +60,38 @@ mod_map_server <- function(id = "map", gameState) {
               class = "disease-shop"
             ),
             position = "bottomleft", className = "fieldset {border: 0;}"
+          ) |>
+          leaflet::addPolygons(
+            layerId = ~ISO3,
+            group = ~ISO3,
+            fill = "white",
+            stroke = TRUE,
+            smoothFactor = 1,
+            fillOpacity = 1,
+            color = "#1F2430",
+            weight = 1,
+            highlightOptions = leaflet::highlightOptions(
+              color = "#FAFAFA", opacity = 1, weight = 2, fillOpacity = 1,
+              bringToFront = TRUE, sendToBack = TRUE)
           )
       })
-
+    
     observe({
       cli::cli_alert("update map")
       leaflet::leafletProxy(
         mapId = "cloropleth",
         data = map_data
       ) |>
-        add_polygons(gameState()$getMapData())
+        update_polygons(gameState()$getMapData())
     })
-
+    
     cli::cli_alert("trigger shop server")
     disease_shop_modal_server(ns("shop_modal"), gameState, reactive(input$disease_design))
   })
 }
 
 
-add_polygons <- function(map, map_data) {
+update_polygons <- function(map, map_data) {
   cli::cli_alert("add polygons")
   data("global")
   get_quantiles <- function(metric, n = 666) {
@@ -85,19 +99,18 @@ add_polygons <- function(map, map_data) {
     bins <- unique(floor(quantile(log(metric), qs, na.rm = TRUE) |> as.vector()))
     c(bins, Inf)
   }
-
+  
   create_gradient <- function(col1, col2) {
     fn_cols <- grDevices::colorRamp(c(col1, col2), space = "Lab", interpolate = "spline")
     cols <- fn_cols(seq(0, 1, length.out = 10)) / 255
     grDevices::rgb(cols[, 1], cols[, 2], cols[, 3], alpha = 1)
   }
-
+  
   get_cases_array <- function() {
     x <- map_data[["confirmed_cases"]]
-    # x[x == 0] <- NA
     x
   }
-
+  
   get_proportion_array <- function() {
     x <- map_data[["proportion"]]
     x[x == 0] <- NA
@@ -106,8 +119,7 @@ add_polygons <- function(map, map_data) {
     x[!is.numeric(x)] <- NA
     x
   }
-
-  # Prepare text for the tooltip
+  
   mytext <- paste0(
     "<b> Country: </b> ", map_data$NAME, "<br/>",
     "<hr>",
@@ -117,45 +129,96 @@ add_polygons <- function(map, map_data) {
     "<b> Tests: </b> ", prettyNum(map_data[["total_tests"]], big.mark = ","), "<br/>"
   ) |>
     lapply(htmltools::HTML)
-
+  
   colours <- create_gradient(col1 = global$colours$grey, col2 = global$colours$red)
-  # my_palette <- leaflet::colorBin(colours, map_data[["confirmed_cases"]], na.color = "white", bins = get_quantiles(map_data[["confirmed_cases"]]))
 
   probs <- seq(0, 1, length.out = length(get_cases_array()) + 1)
-  # my_palette <- leaflet::colorQuantile(
-  #   colours,
-  #   get_cases_array() + runif(length(get_cases_array())) * 000.1,
-  #   na.color = "white",
-  #   probs = probs
-  #   )
+
   map_data$proportion <- map_data$confirmed_cases / map_data$POP2005
   my_palette <- leaflet::colorBin(
     colours[-1],
     get_cases_array(),
     na.color = "white",
     bins =  seq(0, 1, length.out = 1e3)
-    # bins = get_quantiles(map_data[["confirmed_cases"]])
   )
-
+  
   map |>
-    leaflet::addPolygons(
-      layerId = ~country_code,
-      fill = "white",
-      stroke = TRUE,
-      smoothFactor = 1,
-      fillOpacity = 1,
-      color = "#1F2430",
-      weight = 1,
+    setShapeStyle(
+      layerId = ~ISO3,
       label = mytext,
       labelOptions = leaflet::labelOptions(
         style = list("font-weight" = "normal", padding = "3px 8px", "background-color" = "#FAFAFA"),
         textsize = "13px",
-        direction = "auto"
-      ),
-      fillColor = ~ my_palette(get_proportion_array()),
-      highlightOptions = leaflet::highlightOptions(
-        color = "#FAFAFA", opacity = 1, weight = 2, fillOpacity = 1,
-        bringToFront = TRUE, sendToBack = TRUE
-      )
+        direction = "auto"),
+      fillColor = ~ my_palette(get_proportion_array())
     )
 }
+
+#  extend leaflet from github ---------------------------------------------
+# adapted from https://github.com/rstudio/leaflet/issues/496#issuecomment-650122985
+
+setShapeStyle <- function( map, data = leaflet::getMapData(map), layerId,
+                           label = NULL, labelOptions = NULL,
+                           stroke = NULL, color = NULL,
+                           weight = NULL, opacity = NULL,
+                           fill = NULL, fillColor = NULL,
+                           fillOpacity = NULL, dashArray = NULL,
+                           smoothFactor = NULL, noClip = NULL,
+                           options = NULL
+){
+  label <- unlist(label)
+  options <- c(list(layerId = layerId),
+               options,
+               leaflet::filterNULL(list(stroke = stroke, color = color,
+                                        weight = weight, opacity = opacity,
+                                        fill = fill, fillColor = fillColor,
+                                        fillOpacity = fillOpacity, dashArray = dashArray,
+                                        smoothFactor = smoothFactor, noClip = noClip,
+                                        label = label
+               )))
+  # evaluate all options
+  options <- leaflet::evalFormula(options, data = data)
+  # make them the same length (by building a data.frame)
+  options <- do.call(data.frame, c(options, list(stringsAsFactors=FALSE)))
+  layerId <- options[[1]]
+  style <- options[-1] # drop layer column
+  #print(list(style=style))
+  leaflet::invokeMethod(map, data, "setStyle", "shape", layerId, style, labelOptions);
+}
+
+### JS methods
+leafletjs <-  tags$head(
+  # add in methods from https://github.com/rstudio/leaflet/pull/598
+  tags$script(HTML(
+    '
+window.LeafletWidget.methods.setStyle = function(category, layerId, style, labelOptions){
+  var map = this;
+  if (!layerId){
+    return;
+  } else if (!(typeof(layerId) === "object" && layerId.length)){ // in case a single layerid is given
+    layerId = [layerId];
+  }
+
+  //convert columnstore to row store
+  style = HTMLWidgets.dataframeToD3(style);
+  //console.log(style);
+
+  layerId.forEach(function(d,i){
+    var layer = map.layerManager.getLayer(category, d);
+    if (layer){ // or should this raise an error?
+      layer.setStyle(style[i]);
+      let label = style[i]["label"];
+        if (label !== null) {
+          if (labelOptions !== null) {
+          console.log(labelOptions);
+              layer.bindTooltip(label, labelOptions);
+            } else {
+              layer.bindTooltip(label);
+            }
+          }
+    }
+  });
+};
+'
+  ))
+)
