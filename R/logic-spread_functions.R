@@ -16,6 +16,6 @@ getInCountrySpreadChance <- function(infectiousness, infected_proportion){
 #'
 #'@export 
 getCrossCountrySpreadChance <- function(infectiousness, infected_proportion){
-  cross_country_spread_factor <- 1e-3
+  cross_country_spread_factor <- 5e-4
   tanh(infectiousness + sqrt(infected_proportion * cross_country_spread_factor))
 }
