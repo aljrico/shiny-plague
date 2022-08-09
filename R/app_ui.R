@@ -10,8 +10,11 @@ app_ui <- function(request) {
     golem_add_external_resources(),
     # Your application UI logic 
     fluidPage(
-      bigTitle("Shiny Plague"),
-      bigDescription("Design the perfect disease that will obliterate humanity"),
+      mainHeader(
+        bigTitle("Shiny Plague"),
+        bigDescription("Design the perfect disease that will obliterate humanity"),
+        displayDate_ui(),
+      ),
       shinyjs::useShinyjs(),
       mod_map_ui()
     )
