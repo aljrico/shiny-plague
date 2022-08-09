@@ -59,7 +59,7 @@ GameState <- R6::R6Class(
           cli::cli_alert_warning("{country} has 0 population")
           return(NULL)
         }
-        proportion_infected <- total_infected / total_population
+        proportion_infected <- min(total_infected / total_population, 1)
 
         # In-country spread
         cli::cli_alert("in-country spread")
@@ -68,8 +68,12 @@ GameState <- R6::R6Class(
           proportion_infected
         )
         new_infections <- rbinom(1, total_infected, chance_of_spread)
-        if (new_infections > 0) self$earnDNAPoints(p = 0.9)
-        private$map_data[private$map_data$ISO3 == country, ]$confirmed_cases <- total_infected + new_infections
+        if (new_infections > 0) self$earnDNAPoints(p = 0.5)
+        if(total_infected + new_infections >= total_population){
+          private$map_data[private$map_data$ISO3 == country, ]$confirmed_cases <- total_population
+        }else{
+          private$map_data[private$map_data$ISO3 == country, ]$confirmed_cases <- total_infected + new_infections 
+        }
 
         # Cross-country spread
         cli::cli_alert("cross-country spread")
