@@ -10,10 +10,10 @@ app_ui <- function(request) {
     golem_add_external_resources(),
     # Your application UI logic 
     fluidPage(
-      metrics_header_ui(),
+      bigTitle("Shiny Plague"),
+      bigDescription("Design the perfect disease that will obliterate humanity"),
       shinyjs::useShinyjs(),
-      h1("shiny.plague"),
-      mod_map_ui(),
+      mod_map_ui()
     )
   )
 }

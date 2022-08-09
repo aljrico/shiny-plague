@@ -8,5 +8,4 @@ app_server <- function( input, output, session ) {
   gameState <- GameState$new()$reactive()
   core_loop(gameState)
   mod_map_server(gameState = gameState)
-  metrics_header_server(gameState = gameState)
 }

@@ -202,7 +202,8 @@ GameState <- R6::R6Class(
     },
     buyCard = function(card) {
       increase_modifier <- 0.1
-      self$spendDNAPoints(card$getCost())
+      canAfford <- try(self$spendDNAPoints(card$getCost()))
+      if("try-error" %in% class(canAfford)) return(NULL)
       self$increaseLethality(by = card$getLethalityImpact() * increase_modifier)
       self$increaseVisibility(by = card$getVisibilityImpact() * increase_modifier)
       self$increaseInfectiousness(by = card$getInfectiousnessImpact() * increase_modifier)
@@ -227,11 +228,14 @@ GameState <- R6::R6Class(
     setRecoveryRate = function(recovery_rate) {
       private$recovery_rate <- recovery_rate
     },
-    getDeathProbability = function() {
+    getLethality = function() {
       private$lethality
     },
-    getInfectionProbability = function() {
+    getInfectiousness = function() {
       private$infectiousness
+    },
+    getVisibility = function(){
+      private$visibility
     },
     getRecoveryRate = function() {
       private$recovery_rate

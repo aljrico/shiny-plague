@@ -68,7 +68,14 @@ mod_map_server <- function(id = "map", gameState) {
         mapId = "cloropleth",
         data = map_data
       ) |>
-        add_polygons(gameState()$getMapData())
+        add_polygons(gameState()$getMapData()) |> 
+        leaflet::removeControl('progressIndicators') |> 
+        leaflet::addControl(
+          position = 'topright',
+          class = 'progress-indicators',
+          layerId = 'progressIndicators',
+          progressIndicators(gameState())
+        )
     })
 
     cli::cli_alert("trigger shop server")
