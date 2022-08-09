@@ -15,6 +15,7 @@ GameState <- R6::R6Class(
     visibility = NULL,
     recovery_rate = NULL,
     count = 0,
+    date = lubridate::ymd("1970-01-01"),
     invalidate = function() {
       private$count <- private$count + 1
       private$reactiveDep(private$count)
@@ -275,6 +276,12 @@ GameState <- R6::R6Class(
     },
     getTotalRecovered = function() {
       sum(private$map_data$confirmed_recovered)
+    },
+    increaseDate = function(){
+      private$date <- private$date + 1
+    },
+    getDate = function(){
+      private$date
     }
   )
 )
