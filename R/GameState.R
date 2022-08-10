@@ -23,36 +23,27 @@ GameState <- R6::R6Class(
       invisible()
     },
     initializeData = function() {
-      cli::cli_alert("initialize data")
-      data("map_data")
+      data("map_data", envir = environment())
       private$map_data <- map_data
       private$sproutFirstInfected()
       private$createBorderMapping()
     },
     killPopulation = function() {
-      cli::cli_alert("kill population")
-      # of the infected population, there is a lethality chance that any one person might die
+      death_chance <- getDeathChance(self$getLethality())
+      if(death_chance == 0) return(NULL)
       infected <- private$map_data$confirmed_cases
 
       new_deaths <- purrr::map_dbl(infected, function(total_infected) {
-        new_deaths <- sample(0:1, total_infected, replace = TRUE, prob = c(1 - private$lethality, private$lethality))
-        return(sum(new_deaths))
+        rbinom(1, total_infected, death_chance)
       })
 
       private$map_data$confirmed_deaths <- private$map_data$confirmed_deaths + new_deaths
-      # when someone dies when infected, that is one less person with the infection
-      # also remove from total population ?
       private$map_data$confirmed_cases <- private$map_data$confirmed_cases - new_deaths
     },
     spreadInfection = function() {
-      cli::cli_h3("spread infection")
-
       countries <- private$map_data$ISO3
       countries <- private$map_data[private$map_data$confirmed_cases > 0, ]$ISO3 |>
         as.character()
-      empty_countries <- private$map_data[private$map_data$confirmed_cases == 0, ]$ISO3 |>
-        as.character()
-      empty_countries <- empty_countries[!is.na(empty_countries)]
       countries <- countries[!is.na(countries)]
 
       sapply(countries, function(country) {
@@ -65,7 +56,6 @@ GameState <- R6::R6Class(
         proportion_infected <- min(total_infected / total_population, 1)
 
         # In-country spread
-        cli::cli_alert("in-country spread")
         chance_of_spread <- getInCountrySpreadChance(
           private$infectiousness,
           proportion_infected
@@ -79,7 +69,6 @@ GameState <- R6::R6Class(
         }
 
         # Cross-country spread
-        cli::cli_alert("cross-country spread")
         bordering_countries <- private$borders[[country]]
         sapply(bordering_countries, function(bc) {
           chance_of_spread <- getCrossCountrySpreadChance(
@@ -127,7 +116,6 @@ GameState <- R6::R6Class(
       }
     },
     recoverPopulation = function(recovery_rate = self$getRecoveryRate()) {
-      cli::cli_alert("recover population")
       infected <- private$map_data$confirmed_cases
 
       new_recovered <- purrr::map_dbl(infected, function(total_infected) {
@@ -280,10 +268,10 @@ GameState <- R6::R6Class(
       private$airborne_bonus
     },
     progressInfection = function() {
-      cli::cli_alert("progress infection")
       private$recoverPopulation()
       private$killPopulation()
       private$spreadInfection()
+      private$invalidate()
     },
     earnDNAPoints = function(n = 1, p = private$dna_points_probability) {
       new_points <- rbinom(1, n, p)

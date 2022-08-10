@@ -3,6 +3,7 @@
 export(diseaseIndicator)
 export(getAirborneSpreadChance)
 export(getCrossCountrySpreadChance)
+export(getDeathChance)
 export(getInCountrySpreadChance)
 export(run_app)
 export(updateDiseaseIndicator)
