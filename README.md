@@ -26,7 +26,6 @@ devtools::install_github("aljrico/shiny-plague")
 This is a basic example which shows you how to solve a common problem:
 
 ``` r
-library(shiny.plague)
 ## basic example code
 ```
 

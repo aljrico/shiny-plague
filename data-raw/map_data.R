@@ -1,6 +1,6 @@
 ## code to prepare `map_data` dataset goes here
 
-data("map_data")
+data("map_data", envir = environment())
 
 # add row numbers to map_data to be used to join with borders
 map_data <- map_data |>
