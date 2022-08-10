@@ -1,0 +1,23 @@
+.progress-indicators {
+  font-size: 14;
+  font-weight: 600;
+  min-width: 200px;
+  padding: 10px;
+  background-color: rgba(143, 153, 168, 0.9);
+  border-radius: 4px;
+  box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.25);
+}
+
+.progress-indicators-container {
+  width: 100%;
+  display:flex;
+  flex-direction: column;
+  justify-content: flex-start;
+} 
+
+.progress-indicator {
+  width: 100%;
+    display:flex;
+  flex-direction: row;
+  justify-content: space-between;
+}

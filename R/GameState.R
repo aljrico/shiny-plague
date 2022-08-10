@@ -15,6 +15,7 @@ GameState <- R6::R6Class(
     visibility = NULL,
     recovery_rate = NULL,
     count = 0,
+    date = lubridate::ymd("1970-01-01"),
     invalidate = function() {
       private$count <- private$count + 1
       private$reactiveDep(private$count)
@@ -202,7 +203,8 @@ GameState <- R6::R6Class(
     },
     buyCard = function(card) {
       increase_modifier <- 0.1
-      self$spendDNAPoints(card$getCost())
+      canAfford <- try(self$spendDNAPoints(card$getCost()))
+      if("try-error" %in% class(canAfford)) return(NULL)
       self$increaseLethality(by = card$getLethalityImpact() * increase_modifier)
       self$increaseVisibility(by = card$getVisibilityImpact() * increase_modifier)
       self$increaseInfectiousness(by = card$getInfectiousnessImpact() * increase_modifier)
@@ -227,11 +229,14 @@ GameState <- R6::R6Class(
     setRecoveryRate = function(recovery_rate) {
       private$recovery_rate <- recovery_rate
     },
-    getDeathProbability = function() {
+    getLethality = function() {
       private$lethality
     },
-    getInfectionProbability = function() {
+    getInfectiousness = function() {
       private$infectiousness
+    },
+    getVisibility = function(){
+      private$visibility
     },
     getRecoveryRate = function() {
       private$recovery_rate
@@ -271,6 +276,12 @@ GameState <- R6::R6Class(
     },
     getTotalRecovered = function() {
       sum(private$map_data$confirmed_recovered)
+    },
+    increaseDate = function(){
+      private$date <- private$date + 1
+    },
+    getDate = function(){
+      private$date
     }
   )
 )
