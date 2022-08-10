@@ -3,8 +3,8 @@ core_loop <- function(gameState){
     loop <- reactiveTimer(1000)
     observeEvent(loop(), {
       gameState()$increaseDate()
-      gameState()$progressInfection()
       gameState()$increaseMedicalProgress()
+      gameState()$progressInfection()
     })
   })
 }

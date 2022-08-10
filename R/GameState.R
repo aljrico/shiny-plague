@@ -270,7 +270,7 @@ GameState <- R6::R6Class(
     increaseMedicalProgress = function(){
       multiplying_factor <- max(0.01, self$getVisibility() / 10)
       private$medical_progress <- private$medical_progress * (1 + multiplying_factor)
-      print(private$medical_progress)
+      private$invalidate()
     },
     earnDNAPoints = function(n = 1, p = private$dna_points_probability) {
       new_points <- rbinom(1, n, p)
