@@ -218,8 +218,10 @@ window.LeafletWidget.methods.setStyle = function(category, layerId, style, label
         if (label !== null) {
           if (labelOptions !== null) {
           console.log(labelOptions);
+              layer.closeTooltip()
               layer.bindTooltip(label, labelOptions);
             } else {
+              layer.closeTooltip()
               layer.bindTooltip(label);
             }
           }
