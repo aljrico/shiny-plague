@@ -29,7 +29,7 @@ mod_map_server <- function(id = "map", gameState) {
     output$cloropleth <-
       leaflet::renderLeaflet({
         cli::cli_alert("render map")
-        data("map_data")
+        data("map_data", envir = environment())
         # Define options
         leaflet_options <- function() {
           leaflet::leafletOptions(
@@ -100,7 +100,7 @@ mod_map_server <- function(id = "map", gameState) {
 
 update_polygons <- function(map, map_data) {
   cli::cli_alert("add polygons")
-  data("global")
+  data("global", envir = environment())
   get_quantiles <- function(metric, n = 666) {
     qs <- seq(from = 0, to = 1, by = 1 / n)
     bins <- unique(floor(quantile(log(metric), qs, na.rm = TRUE) |> as.vector()))
