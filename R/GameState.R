@@ -15,6 +15,7 @@ GameState <- R6::R6Class(
     visibility = NULL,
     recovery_rate = NULL,
     airborne_bonus = 0,
+    medical_progress = 0.01,
     count = 0,
     date = lubridate::ymd("1970-01-01"),
     invalidate = function() {
@@ -115,16 +116,15 @@ GameState <- R6::R6Class(
         private$map_data[country_row, ]$confirmed_cases <- 1
       }
     },
-    recoverPopulation = function(recovery_rate = self$getRecoveryRate()) {
+    recoverPopulation = function() {
       infected <- private$map_data$confirmed_cases
+      recovery_chance <- getRecoveryChance(self$getMedicalProgress())
 
       new_recovered <- purrr::map_dbl(infected, function(total_infected) {
-        recovered <- sample(0:1, total_infected, replace = TRUE, prob = c(1 - recovery_rate, recovery_rate))
-        return(sum(recovered))
+        rbinom(1, total_infected, recovery_chance)
       })
 
       private$map_data$confirmed_recovered <- private$map_data$confirmed_recovered + new_recovered
-      # when someone recovers after being infected, that is one less person with the infection
       private$map_data$confirmed_cases <- private$map_data$confirmed_cases - new_recovered
     },
     getBorders = function(country) {
@@ -190,12 +190,9 @@ GameState <- R6::R6Class(
       # be locked and can't be changed.
       private$reactiveDep <- function(x) NULL
       private$initializeData()
-      private$score <- 0
-      private$health <- 100
 
       self$setDeathProbability(0)
       self$setInfectionProbability(0)
-      self$setRecoveryRate(0)
       self$cardsManager <- CardsManager$new()
     },
     reactive = function() {
@@ -246,9 +243,6 @@ GameState <- R6::R6Class(
     setInfectionProbability = function(infectiousness) {
       private$infectiousness <- infectiousness
     },
-    setRecoveryRate = function(recovery_rate) {
-      private$recovery_rate <- recovery_rate
-    },
     getLethality = function() {
       private$lethality
     },
@@ -258,8 +252,8 @@ GameState <- R6::R6Class(
     getVisibility = function() {
       private$visibility
     },
-    getRecoveryRate = function() {
-      private$recovery_rate
+    getMedicalProgress = function(){
+      private$medical_progress
     },
     getMapData = function() {
       private$map_data
@@ -272,6 +266,11 @@ GameState <- R6::R6Class(
       private$killPopulation()
       private$spreadInfection()
       private$invalidate()
+    },
+    increaseMedicalProgress = function(){
+      multiplying_factor <- max(0.01, self$getVisibility() / 10)
+      private$medical_progress <- private$medical_progress * (1 + multiplying_factor)
+      print(private$medical_progress)
     },
     earnDNAPoints = function(n = 1, p = private$dna_points_probability) {
       new_points <- rbinom(1, n, p)
