@@ -31,14 +31,15 @@ GameState <- R6::R6Class(
     killPopulation = function() {
       cli::cli_alert("kill population")
       # of the infected population, there is a lethality chance that any one person might die
-      infected <- private$map_data$confirmed_cases
-
-      new_deaths <- purrr::map_dbl(infected, function(total_infected) {
-        new_deaths <- sample(0:1, total_infected, replace = TRUE, prob = c(1 - private$lethality, private$lethality))
-        return(sum(new_deaths))
-      })
-
-      private$map_data$confirmed_deaths <- private$map_data$confirmed_deaths + new_deaths
+      new_deaths <- private$map_data |>
+        dplyr::select(confirmed_cases)|>
+        dplyr::rowwise() |>
+        dplyr::mutate(new_deaths = dplyr::case_when(
+          confirmed_cases == 0 ~ confirmed_cases ,
+          TRUE ~ as.numeric(rbinom(1, confirmed_cases, self$getInfectiousness())))) |>
+        dplyr::pull(new_deaths)
+      
+      private$map_data$confirmed_deaths <- pmin(private$map_data$confirmed_deaths + new_deaths, private$map_data$POP2005)
       # when someone dies when infected, that is one less person with the infection
       # also remove from total population ?
       private$map_data$confirmed_cases <- private$map_data$confirmed_cases - new_deaths
@@ -46,65 +47,75 @@ GameState <- R6::R6Class(
     spreadInfection = function() {
       cli::cli_h3("spread infection")
       cross_country_spread_factor <- 1e-3
+      
+      cli::cli_alert("in-country spread")
+      
+      total_infected <- private$map_data$confirmed_cases
+      total_population <- private$map_data$POP2005
+      proportion_infected <- total_infected / total_population
+      chance_of_spread <- getInCountrySpreadChance(
+        private$infectiousness,
+        proportion_infected)
+      
+      new_infected <- private$map_data |>
+        dplyr::select(confirmed_cases)|>
+        dplyr::rowwise() |>
+        dplyr::mutate(new_infected = dplyr::case_when(
+          confirmed_cases == 0 ~ confirmed_cases ,
+          TRUE ~ as.numeric(rbinom(1, confirmed_cases, chance_of_spread)))) |>
+        dplyr::pull(new_infected)
+      
+      # confirmed cases can't be more than the total population 
+      private$map_data$confirmed_cases <- pmin(total_infected + new_infected, total_population)
+      # number of new infections will determine how many dna points are rewarded
+      num_new_infections <- sum(new_infected != 0)
+      if (num_new_infections !=0) {
+        purrr::walk(1:num_new_infections, ~self$earnDNAPoints(p = 0.9))
+      }
 
+      
       countries <- private$map_data$ISO3
       countries <- private$map_data[private$map_data$confirmed_cases > 0, ]$ISO3 |>
         as.character()
       countries <- countries[!is.na(countries)]
-
+      #Cross-country spread
       sapply(countries, function(country) {
-        total_infected <- private$map_data[private$map_data$ISO3 == country, ]$confirmed_cases
-        total_population <- private$map_data[private$map_data$ISO3 == country, ]$POP2005
-        if (total_population == 0) {
-          cli::cli_alert_warning("{country} has 0 population")
-          return(NULL)
-        }
-        proportion_infected <- total_infected / total_population
-
-        # In-country spread
-        cli::cli_alert("in-country spread")
-        chance_of_spread <- getInCountrySpreadChance(
-          private$infectiousness,
-          proportion_infected
-        )
-        new_infections <- rbinom(1, total_infected, chance_of_spread)
-        if (new_infections > 0) self$earnDNAPoints(p = 0.9)
-        private$map_data[private$map_data$ISO3 == country, ]$confirmed_cases <- total_infected + new_infections
-
         # Cross-country spread
         cli::cli_alert("cross-country spread")
         bordering_countries <- private$borders[[country]]
         sapply(bordering_countries, function(bc) {
+          country_row <- which(private$map_data$ISO3 == bc)
+          
           chance_of_spread <- getCrossCountrySpreadChance(
             private$infectiousness,
-            proportion_infected
+            proportion_infected[[country_row]]
           )
+          
           new_infected <- rbinom(1, 1, chance_of_spread)
           if (new_infected == 0) {
             return(NULL)
           }
 
-          existing_infected <-
-            private$map_data[private$map_data$ISO3 == bc, ]$confirmed_cases
+          existing_infected <- total_infected[[country_row]]
 
           if (existing_infected > 0) {
             return(NULL)
           }
           self$earnDNAPoints(p = 1)
-          country_row <- which(private$map_data$ISO3 == bc)
           private$map_data[country_row, ]$confirmed_cases <- new_infected
         })
       })
     },
     recoverPopulation = function(recovery_rate = self$getRecoveryRate()) {
       cli::cli_alert("recover population")
-      infected <- private$map_data$confirmed_cases
-
-      new_recovered <- purrr::map_dbl(infected, function(total_infected) {
-        recovered <- sample(0:1, total_infected, replace = TRUE, prob = c(1 - recovery_rate, recovery_rate))
-        return(sum(recovered))
-      })
-
+      new_recovered <- private$map_data |>
+        dplyr::select(confirmed_cases)|>
+        dplyr::rowwise() |>
+        dplyr::mutate(new_recovered = dplyr::case_when(
+          confirmed_cases == 0 ~ confirmed_cases ,
+          TRUE ~ as.numeric(rbinom(1, confirmed_cases, self$getRecoveryRate())))) |>
+        dplyr::pull(new_recovered)
+      
       private$map_data$confirmed_recovered <- private$map_data$confirmed_recovered + new_recovered
       # when someone recovers after being infected, that is one less person with the infection
       private$map_data$confirmed_cases <- private$map_data$confirmed_cases - new_recovered
@@ -127,27 +138,12 @@ GameState <- R6::R6Class(
         dplyr::pull()
       borders <- private$map_data[ISO3 == country, ..cols] |>
         purrr::keep(~ has_border(.x))
-
+      
       borders <- names(borders) |>
         stringr::str_remove("borders_with_")
     },
     createBorderMapping = function() {
-      countries <- private$map_data$ISO3
-
-      borders <- lapply(countries, function(country) {
-        private$map_data |>
-          dplyr::select(-geometry) |>
-          tibble::as_tibble() |>
-          dplyr::filter(ISO3 == country) |>
-          dplyr::select(dplyr::contains("borders_with")) |>
-          tidyr::pivot_longer(tidyr::everything()) |>
-          dplyr::filter(value > 0) |>
-          dplyr::mutate(name = name |> stringr::str_remove("borders_with_")) |>
-          dplyr::pull(name) |>
-          unique()
-      })
-
-      names(borders) <- countries
+      data("borders")
       private$borders <- borders
     },
     sproutFirstInfected = function() {
@@ -158,7 +154,7 @@ GameState <- R6::R6Class(
         dplyr::arrange(desc(POP2005)) |>
         dplyr::top_n(10, POP2005) |>
         dplyr::pull(NAME)
-
+      
       random_country <- sample(top_countries, 1)
       random_row <- which(private$map_data$NAME == random_country)
       private$map_data[random_row, ]$confirmed_cases <- 1
@@ -174,7 +170,7 @@ GameState <- R6::R6Class(
       private$initializeData()
       private$score <- 0
       private$health <- 100
-
+      
       self$setDeathProbability(0)
       self$setInfectionProbability(0)
       self$setRecoveryRate(0)
@@ -196,7 +192,7 @@ GameState <- R6::R6Class(
         as.character() |>
         unique()
       total_infected <- private$map_data$confirmed_cases |> sum()
-
+      
       cli::cli_alert_info(paste0("Infected Countries: ", infected_countries))
       cli::cli_alert_info(paste0("Total Infected:", total_infected))
       cli::cat_rule()
