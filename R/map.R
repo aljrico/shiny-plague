@@ -126,10 +126,10 @@ update_polygons <- function(map, map_data) {
   mytext <- paste0(
     "<b> Country: </b> ", map_data$NAME, "<br/>",
     "<hr>",
-    "<b> Infected: </b> ", prettyNum(map_data[["confirmed_cases"]], big.mark = ","), "<br/>",
-    "<b> Deaths: </b> ", prettyNum(map_data[["confirmed_deaths"]], big.mark = ","), "<br/>",
-    "<b> Recovered: </b> ", prettyNum(map_data[["confirmed_recovered"]], big.mark = ","), "<br/>",
-    "<b> Tests: </b> ", prettyNum(map_data[["total_tests"]], big.mark = ","), "<br/>"
+    "<b> Total Population: </b> ", formatNumbers(map_data[["POP2005"]]), "<br/>",
+    "<b> Infected: </b> ", formatNumbers(map_data[["confirmed_cases"]]), "<br/>",
+    "<b> Deaths: </b> ", formatNumbers(map_data[["confirmed_deaths"]]), "<br/>",
+    "<b> Immune Population: </b> ", formatNumbers(map_data[["immune_population"]]), "<br/>"
   ) |>
     lapply(htmltools::HTML)
   
@@ -207,15 +207,20 @@ window.LeafletWidget.methods.setStyle = function(category, layerId, style, label
 
   layerId.forEach(function(d,i){
     var layer = map.layerManager.getLayer(category, d);
+    
+    layer.on("mousemove", function(e){
+      layer.fire("mouseover");
+    })
+
     if (layer){ // or should this raise an error?
       layer.setStyle(style[i]);
       let label = style[i]["label"];
         if (label !== null) {
           if (labelOptions !== null) {
-              layer.closeTooltip()
+              layer.closeTooltip();
               layer.bindTooltip(label, labelOptions);
             } else {
-              layer.closeTooltip()
+              layer.closeTooltip();
               layer.bindTooltip(label);
             }
           }

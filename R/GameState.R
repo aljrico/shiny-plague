@@ -28,6 +28,7 @@ GameState <- R6::R6Class(
       private$map_data <- map_data
       private$sproutFirstInfected()
       private$createBorderMapping()
+      private$map_data$immune_population <- 0
     },
     killPopulation = function() {
       death_chance <- getDeathChance(self$getLethality())
