@@ -55,7 +55,6 @@ mod_disease_shop_card_server <- function(id, gameState, card_id){
     })
     
     observeEvent(input$buy,{
-      cli::cli_alert('buying card')
       gameState()$buyCard(card)
       handleAvailability()
     })

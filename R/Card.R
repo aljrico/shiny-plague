@@ -11,7 +11,6 @@ Card <- R6::R6Class(
   public = list(
     id = NULL,
     initialize = function(category, cost, lethality, infectiousness, visibility, state = c("unavailable", "available", "cant_afford")) {
-      cli::cli_alert('creating card')
       private$category  <- category 
       private$cost  <- cost 
       private$lethality  <- lethality 

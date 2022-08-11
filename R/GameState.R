@@ -17,7 +17,7 @@ GameState <- R6::R6Class(
     airborne_bonus = 0,
     medical_progress = 0.01,
     count = 0,
-    date = lubridate::ymd("1970-01-01"),
+    date = lubridate::ymd("1994-12-23"),
     invalidate = function() {
       private$count <- private$count + 1
       private$reactiveDep(private$count)
@@ -44,7 +44,6 @@ GameState <- R6::R6Class(
       private$map_data$confirmed_cases <- private$map_data$confirmed_cases - new_deaths
     },
     spreadInfection = function() {
-      cli::cli_h3("spread infection")
       # in country spread
       total_infected <- private$map_data$confirmed_cases
       total_population <- private$map_data$POP2005
@@ -76,7 +75,6 @@ GameState <- R6::R6Class(
       #Cross-country spread
       sapply(countries, function(country) {
         # Cross-country spread
-        cli::cli_alert("cross-country spread")
         bordering_countries <- private$borders[[country]]
         sapply(bordering_countries, function(bc) {
           country_row <- which(private$map_data$ISO3 == bc)

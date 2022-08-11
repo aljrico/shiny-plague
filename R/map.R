@@ -28,7 +28,6 @@ mod_map_server <- function(id = "map", gameState) {
     
     output$cloropleth <-
       leaflet::renderLeaflet({
-        cli::cli_alert("render map")
         data("map_data", envir = environment())
         # Define options
         leaflet_options <- function() {
@@ -91,7 +90,6 @@ mod_map_server <- function(id = "map", gameState) {
         )
     })
     
-    cli::cli_alert("trigger shop server")
     disease_shop_modal_server(ns("shop_modal"), gameState, reactive(input$disease_design))
   })
 }

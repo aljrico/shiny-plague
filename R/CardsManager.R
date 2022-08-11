@@ -65,7 +65,6 @@ CardsManager <- R6::R6Class(
   ),
   public = list(
     initialize = function(n_cards = 10) {
-      cli::cli_h2('creating card stack')
       private$shop_card_stack <- private$init_card_stack(n_cards)
     },
     makeCardUnavailable = function(card){
