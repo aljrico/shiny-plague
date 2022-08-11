@@ -5,7 +5,7 @@ account: aljrico
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 6759389
-bundleId: 6188043
+bundleId: 6188702
 url: https://aljrico.shinyapps.io/shiny-plague/
-when: 1660137492.58461
-lastSyncTime: 1660137492.58466
+when: 1660146212.47628
+lastSyncTime: 1660146212.47631
