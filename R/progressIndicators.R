@@ -9,6 +9,12 @@ progressIndicators <- function(gameState){
       p(icon('dna'), "DNA Points: "),
       p(formatNumbers(gameState$getDNAPoints()))
     ),
+    hr(style = "border: 0.5px solid #ccc; width: 100%; margin-top: 0px;"),
+    div(
+      class = 'progress-indicator',
+      p(icon('user'), "Total Population: "),
+      p(formatNumbers(gameState$getTotalPopulation()))
+    ),
     div(
       class = 'progress-indicator',
       p(icon('biohazard'), "Infected Population: "),
