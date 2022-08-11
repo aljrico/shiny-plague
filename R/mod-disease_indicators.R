@@ -3,9 +3,9 @@ disease_indicators_ui <- function(id = 'infected_score'){
   return(
     div(
       style = "display: flex; flex-diretion: row; justify-content: space-around; align-items: center; width: 100%",
-      diseaseIndicator(ns("lethality"), "lethality",value = 0),
-      diseaseIndicator(ns("infectiousness"), "infectiousness",value = 0),
-      diseaseIndicator(ns("visibility"), "visibility",value = 0)
+      diseaseIndicator(ns("lethality"), "Lethality",value = 0),
+      diseaseIndicator(ns("infectiousness"), "Infectiousness",value = 0),
+      diseaseIndicator(ns("visibility"), "Visibility",value = 0)
     )
   )
 }
