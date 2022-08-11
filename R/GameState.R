@@ -269,6 +269,9 @@ GameState <- R6::R6Class(
     getTotalDeaths = function() {
       sum(private$map_data$confirmed_deaths)
     },
+    getImmunePopulation = function(){
+      sum(private$map_data$immune_population)
+    },
     getTotalRecovered = function() {
       sum(private$map_data$confirmed_recovered)
     },
