@@ -3,16 +3,16 @@ $( document ).ready(function() {
 Shiny.addCustomMessageHandler("update-diseaseIndicator", function(
   data
 ) {
-  var id = data.id;
-  var elVal = document.getElementById(id + "-value");
-  var elLabel = document.getElementById(id + "-label");
-  var value = data.value;
+  const id = data.id;
+  const value = data.value;
+  const elementValue = document.getElementById(id + "-value");
+  const elementLabel = document.getElementById(id + "-label");
 
-  elVal.style.width = value + "%";
-  elVal.style.backgroundColor = data.colour
+  elementValue.style.width = value + "%";
+  elementValue.style.backgroundColor = data.colour;
   
-    if (data.label !== null) {
-    elLabel.innerText = data.label;
+  if (data.label !== null) {
+    elementLabel.innerText = data.label;
   }
   
 });
