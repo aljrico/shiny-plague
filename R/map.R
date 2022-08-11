@@ -77,7 +77,6 @@ mod_map_server <- function(id = "map", gameState) {
       })
     
     observe({
-      cli::cli_alert("update map")
       leaflet::leafletProxy(
         mapId = "cloropleth",
         data = map_data
@@ -99,7 +98,6 @@ mod_map_server <- function(id = "map", gameState) {
 
 
 update_polygons <- function(map, map_data) {
-  cli::cli_alert("add polygons")
   data("global", envir = environment())
   get_quantiles <- function(metric, n = 666) {
     qs <- seq(from = 0, to = 1, by = 1 / n)
@@ -208,7 +206,6 @@ window.LeafletWidget.methods.setStyle = function(category, layerId, style, label
 
   //convert columnstore to row store
   style = HTMLWidgets.dataframeToD3(style);
-  //console.log(style);
 
   layerId.forEach(function(d,i){
     var layer = map.layerManager.getLayer(category, d);
@@ -217,7 +214,6 @@ window.LeafletWidget.methods.setStyle = function(category, layerId, style, label
       let label = style[i]["label"];
         if (label !== null) {
           if (labelOptions !== null) {
-          console.log(labelOptions);
               layer.closeTooltip()
               layer.bindTooltip(label, labelOptions);
             } else {
