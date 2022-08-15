@@ -66,7 +66,7 @@ GameState <- R6::R6Class(
       # number of new infections will determine how many dna points are rewarded
       num_new_infections <- sum(new_infected != 0)
       if (num_new_infections !=0) {
-        purrr::walk(1:num_new_infections, ~self$earnDNAPoints(p = 0.9))
+        purrr::walk(1:num_new_infections, ~self$earnDNAPoints(p = 0.1))
       }
       
       countries <- private$map_data$ISO3

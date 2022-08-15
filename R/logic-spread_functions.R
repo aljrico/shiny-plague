@@ -5,7 +5,7 @@
 #'@export 
 getInCountrySpreadChance <- function(infectiousness, infected_proportion){
   in_country_spread_factor <- 0.1
-  result <- tanh(in_country_spread_factor * (1 - infected_proportion) + infectiousness)
+  result <- tanh(in_country_spread_factor * (1 + infectiousness) ^ 2 * (1 - infected_proportion) ^ 2)
   return(result)
 }
 
@@ -15,8 +15,8 @@ getInCountrySpreadChance <- function(infectiousness, infected_proportion){
 #'
 #'@export 
 getCrossCountrySpreadChance <- function(infectiousness, infected_proportion){
-  cross_country_spread_factor <- 5e-4
-  tanh(infectiousness + sqrt(infected_proportion * cross_country_spread_factor))
+  cross_country_spread_factor <- 1e-3
+  tanh(cross_country_spread_factor * (1 + infectiousness) * (1 + infected_proportion))
 }
 
 #' Calculates airborne spread chance
