@@ -136,6 +136,13 @@ CardsManager <- R6::R6Class(
           visibility = 5
         ),
         Card$new(
+          category = 'Pulmonary Oedema',
+          cost = 8,
+          lethality = 5,
+          infectiousness = 4,
+          visibility = 2
+        ),
+        Card$new(
           category = 'Tumours',
           cost = 30,
           lethality = 20,
@@ -154,7 +161,14 @@ CardsManager <- R6::R6Class(
           cost = 25,
           lethality = 16,
           infectiousness = 8,
-          visibility = 4
+          visibility = 8
+        ),
+        Card$new(
+          category = 'Hemorrhagic Shock',
+          cost = 20,
+          lethality = 10,
+          infectiousness = 1,
+          visibility = 6
         ),
         Card$new(
           category = 'Total Organ Failure',
