@@ -241,6 +241,7 @@ GameState <- R6::R6Class(
       private$invalidate()
     },
     increaseMedicalProgress = function(){
+      if(self$getVisibility() == 0) return(NULL)
       multiplying_factor <- max(0.01, self$getVisibility() / 10)
       private$medical_progress <- private$medical_progress * (1 + multiplying_factor)
       private$invalidate()
