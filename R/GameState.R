@@ -49,6 +49,7 @@ GameState <- R6::R6Class(
       total_infected <- private$map_data$confirmed_cases
       total_population <- private$map_data$POP2005
       proportion_infected <- total_infected / total_population
+      
       chance_of_spread <- getInCountrySpreadChance(
         private$infectiousness,
         proportion_infected)
@@ -242,7 +243,8 @@ GameState <- R6::R6Class(
     },
     increaseMedicalProgress = function(){
       if(self$getVisibility() == 0) return(NULL)
-      multiplying_factor <- max(0.01, self$getVisibility() / 10)
+      multiplying_factor <- max(0.01, tanh(self$getVisibility()) / 50)
+      extra_medical_progress <- private$medical_progress * multiplying_factor
       private$medical_progress <- private$medical_progress * (1 + multiplying_factor)
       private$invalidate()
     },
