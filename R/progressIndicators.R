@@ -29,6 +29,11 @@ progressIndicators <- function(gameState){
       class = 'progress-indicator',
       p(icon('shield-virus'), "Immune Population: "),
       p(formatNumbers(gameState$getImmunePopulation()))
+    ),
+    div(
+      class = 'progress-indicator',
+      p(icon('syringe'), "Medical Progress"),
+      p(formatNumbers(100 * gameState$getMedicalProgress()))
     )
   )
 }
