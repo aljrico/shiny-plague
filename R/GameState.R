@@ -198,7 +198,7 @@ GameState <- R6::R6Class(
       self$increaseLethality(by = card$getLethalityImpact() * increase_modifier)
       self$increaseVisibility(by = card$getVisibilityImpact() * increase_modifier)
       self$increaseInfectiousness(by = card$getInfectiousnessImpact() * increase_modifier)
-      self$cardsManager$makeCardUnavailable(card)
+      self$cardsManager$buyCard(card)
       private$invalidate()
     },
     increaseLethality = function(by) {

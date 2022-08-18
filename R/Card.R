@@ -10,17 +10,17 @@ Card <- R6::R6Class(
   ),
   public = list(
     id = NULL,
-    initialize = function(category, cost, lethality, infectiousness, visibility, state = c("unavailable", "available", "cant_afford")) {
+    initialize = function(category, cost, lethality, infectiousness, visibility, state = c("unavailable", "available", "cant_afford", 'purchased')) {
       private$category  <- category 
       private$cost  <- cost 
       private$lethality  <- lethality 
       private$infectiousness  <- infectiousness 
       private$visibility <- visibility
-      private$state <- 'available'
+      private$state <- 'unavailable'
       self$id <- digest::digest(self, algo = 'murmur32')
     },
     setState = function(new_state = c("available", "cant_afford","unavailable")){
-      private$state <-  match.arg(new_state)
+      private$state <-  new_state
     },
     getCategory = function(){
       private$category
@@ -51,7 +51,10 @@ Card <- R6::R6Class(
       )
     },
     isAvailable = function(){
-      self$getState() != 'unavailable'
+    !'unavailable' %in% self$getState()
+    },
+    isPurchased = function(){
+      'purchased' %in% self$getState()
     },
     print = function(){
       cat("Card: \n")
