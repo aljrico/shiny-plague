@@ -1,15 +1,26 @@
- .custom-button {
-   color: inherit;
-   padding: 4px;
-   padding-right: 8px;
-   padding-left: 8px;
-   background-color: transparent;
-   border-radius: 2px;
-   border-color: transparent;
-   box-shadow: none;
+.btn-default {
+  margin: 6px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  box-shadow: 0px 3px 1px rgba(0, 0, 0, 0.5);
+  background-color: #F8F9FA;
  }
  
- .custom-button:hover {
+.btn-default:active {
+  margin: 6px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  transform: translateY(2px);
+  box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.5);
+ }
+ 
+ .btn-default:hover {
    background-color: rgba(143,153,168,.15);
-   border: none;
+ }
+ 
+.btn.active.focus, .btn.active:focus, .btn.focus, .btn:active.focus, .btn:active:focus, .btn:focus {
+  outline: none;
+  background-color: rgba(143,153,168,.15);
  }
