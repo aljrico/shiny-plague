@@ -19,7 +19,15 @@ to install all dependencies.
 devtools::install_github("aljrico/shiny-plague")
 ```
 
+And then you can play the game by simply running the following:
+
+``` r
+library(shiny.plague)
+shiny.plague::run_app()
+```
+
 ## Walkthrough
 
 This exercise is part of a Workshop in 2022’s
-[EARL](https://www.ascent.io/earl) conference. The slides
+[EARL](https://www.ascent.io/earl) conference. The slides of which can
+be found within the `presentation` folder.

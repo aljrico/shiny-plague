@@ -248,42 +248,74 @@ observeEvent(input$button, {
   ]
   ]
   .panel[.panel-name[Reactive R6 Objects]
+.pull-left[
+Create private fields with empty values
 ```{r, eval = FALSE, echo = TRUE}
-ReactiveAnimal <- R6::R6Class("ReactiveAnimal",
   private = list(
-    position = 0,
     reactiveDep = NULL,
-    invalidate = function(){
-      private$reactiveDep(rnorm(1))
-      invisible()
-    }
-  ),
-  public = list(
-    initialize = function(){
-      private$reactiveDep <- shiny::reactiveVal(0)
-    },
-    move = function(by = 1){
-     private$position = private$position + 1
-    }
+    reactiveExpr = NULL,
   )
-)
 ```
 
-  
-  We can then verify if the password a user introduces is the same they used to register. <br>
-  Even if we don't know the actual password!
-  ]
-  .panel[.panel-name[Salting]
-  `r fa('square-plus')` &nbsp; Salt is added to the hashing process to force their uniqueness
-  ```{r, eval = TRUE, echo = TRUE}
-  hash_password <- function(input_password, salt){
-    paste0(salt, input_password) %>% digest::digest(algo = "sha256")
+Make the reactiveDep something that can be called.
+If we do this when defining it as a field, its value gets forever locked
+```{r, eval = FALSE, echo = TRUE}
+  initialize = function(){
+    private$reactiveDep <- function(x) NULL
   }
-  ```
-  ```{r, eval = TRUE, echo = TRUE}
-  hash_password("password1234", salt = "bagel")
-  hash_password("password1234", salt = "challah")
-  ```
+```
+]
+.pull-right[
+```{r, eval = FALSE, echo = TRUE}
+  # Create a reactive dependency
+  reactive = function(){
+    if (is.null(private$reactiveExpr)) {
+      private$reactiveDep <- reactiveVal(0)
+      private$reactiveExpr <- reactive({
+        private$reactiveDep()
+        return(self)
+      })
+    }
+    return(private$reactiveExpr)
+  }
+```
+]
+]
+  .panel[.panel-name[Usage]
+.pull-left[
+In order to control reactivity, we'll use the `invalidate()` method.
+```{r, eval = FALSE, echo = TRUE}
+  invalidate = function(){
+    private$reactiveDep(rnorm(1))
+    invisible()
+  }
+```
+
+```{r, eval = FALSE, echo = TRUE}
+  # An example method
+  move = function(){
+    self$position <- self$position + 1
+    private$invalidate()
+  }
+```
+]
+.pull-right[
+In practice, that `ReactiveClass` is created in the server and used as a reactive
+```{r, eval = FALSE, echo = TRUE}
+  reactiveClass <- 
+    ReactiveClass$new()$reactive()
+  
+  # Capture user input
+  observeEvent(input$button, {
+    reactiveClass()$move()
+  })
+  
+  # Show how the class updates
+  output$position <- renderText({
+    reactiveClass()$position
+  })
+```
+]
   ]
 ]
 
