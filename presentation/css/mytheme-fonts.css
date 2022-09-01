@@ -1,0 +1,61 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Source+Code+Pro:400,700');
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Fjalla+One&family=Oswald&display=swap');
+
+@font-face {
+    font-family: SFMonoLight;
+    src: url("SFMonoLight.otf") format("opentype");
+}
+
+@font-face {
+    font-family: SFMonoRegular;
+    src: url("SFMonoRegular.otf") format("opentype");
+}
+
+@font-face {
+    font-family: SFMonoBold;
+    src: url("SFMonoBold.otf") format("opentype");
+}
+
+@font-face {
+    font-family: SFMonoHeavy;
+    src: url("SFMonoHeavy.otf") format("opentype");
+}
+
+@font-face {
+    font-family: SFProDisplayHeavy;
+    src: url("SFProDisplayHeavy.otf") format("opentype");
+}
+
+@font-face {
+    font-family: SFProDisplayRegular;
+    src: url("SFProDisplayRegular.otf") format("opentype");
+}
+
+@font-face {
+    font-family: SFProDisplayMedium;
+    src: url("SFProDisplayMedium.otf") format("opentype");
+}
+
+
+body {
+  font-family: "SFProDisplayRegular", sans-serif;
+  color: '#171717';
+}
+
+h1, h2, h3 {
+  font-family: "SFProDisplayHeavy", serif;
+}
+
+h4, h5 {
+  font-family: "SFProDisplayMedium", serif;
+}
+
+
+.remark-code, .remark-inline-code {
+  font-family: "Fira Code", "Source Code Pro", "Lucida Console", monospace;
+}

@@ -1,0 +1,29 @@
+.fluid-row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-around;
+}
+
+.big-title {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  text-align: center;
+}
+
+.outline h1 {
+  text-align: center;
+}
+
+.outline h5 {
+  margin: 1rem;
+  font-family: SFProDisplayRegular;
+  color: #212121;
+}
+
+.outline h4 {
+  margin: 1rem;
+  font-family: SFProDisplayHeavy;
+  color: var(--darkGrey);
+}

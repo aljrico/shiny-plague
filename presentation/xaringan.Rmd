@@ -1,0 +1,533 @@
+---
+title: "Game Development with R"
+subtitle: "A Shiny Game"
+author: "Alejandro J Rico"
+date: "6th of September, 2022"
+output:
+  xaringan::moon_reader:
+    css: 
+      - default
+      - css/mytheme.css
+      - css/mytheme-fonts.css
+      - css/layout.css
+    lib_dir: libs
+    seal: false
+    self_contained: false
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      highlightSpans: true
+      countIncrementalSlides: false
+      ratio: 16:10
+      #ratio: 191:100
+      beforeInit: "macros.js"
+      slideNumberFormat: |
+        <div class="progress-bar-container">
+          <div class="progress-bar" style="width: calc(%current% / %total% * 100%);">
+          </div>
+        </div>
+---
+
+```{r setup, include = FALSE}
+options(htmltools.dir.version = FALSE)
+library(knitr)
+library(tidyverse)
+library(fontawesome)
+xaringanExtra::use_panelset()
+```
+
+
+class: title-slide, right, top
+background-image: url(img/gamepad.png)
+background-position: center 70%
+background-size: 20%, cover
+background-color: #fafafa
+
+.big-title[
+# `r rmarkdown::metadata$title`
+
+**`r rmarkdown::metadata$author`**<br>
+`r rmarkdown::metadata$date`
+]
+
+---
+name: about-me
+layout: false
+class: about-me-slide, middle, center
+
+# About me
+
+  <img style="border-radius: 50%;" src="img/avatar.png" width="150px"/>
+
+  #### Alejandro J Rico
+  
+  .list[
+    [`r fa("house")` aljrico.com](https://aljrico.com) <br>
+    [`r fa("twitter")` @aljrico](https://twitter.com/aljrico) <br>
+    [`r fa("github")` /aljrico](https://github.com/aljrico) <br>
+  ]
+
+---
+
+name: outline
+layout: false
+class: top, outline
+
+# Outline
+.fluid-row[
+.pull-left-wide[
+#### Logic
+---
+##### `r fa("box")` OOP with R6
+##### `r fa("box-open")` Reactivity in R6 Classes
+##### `r fa("network-wired")` Reactive Interdependence
+##### `r fa("stopwatch")` Real-time Feedback
+##### `r fa("gamepad")` Game Loop
+]
+.pull-left-wide[
+#### User Interface
+---
+#####`r fa("cube")` Minimal Layout
+#####`r fa("cubes")` Progressive Complexity
+#####`r fontawesome::fa("signs-post")` Design Language
+#####`r fa("face-smile")` Satisfying Feedback
+#####`r fa("atom")` Executable
+]
+]
+
+---
+
+
+name: oop_with_r6
+
+### `r fa("box")` OOP with R6
+
+.panelset[
+  .panel[.panel-name[Libraries]
+    Install this library
+  ```{r, eval = FALSE, echo = TRUE}
+  install.packages('R6')
+  ```
+  ]
+  .panel[.panel-name[Classes]
+  .pull-left[
+  ```{r, eval = TRUE, echo = TRUE}
+  Animal <- R6::R6Class(
+    'Animal',
+    public = list(
+      position = 0, # fields
+      move = function(by = 1){
+        self$position <- self$position + by
+      } # methods
+    )
+  )
+  ```
+]
+.pull-right[
+  ```{r, eval = TRUE, echo = TRUE}
+  dog <- Animal$new()
+  cat <- Animal$new()
+  dog$move(1)
+  cat$move(5)
+  
+  ```
+  ```{r, eval = TRUE, echo = TRUE}
+  print(dog$position)
+  print(cat$position)
+  
+  ```
+]
+  ]
+  .panel[.panel-name[Public vs Private]
+  .pull-left[
+  ```{r, eval = TRUE, echo = TRUE}
+  UserAccount <- R6::R6Class(
+  "UserAccount",
+  public = list(
+    username = character(0),
+    initialize = function(username, password){
+      self$username <- username
+      private$password <- password
+    }
+  ), 
+  private = list(
+      password = character(0)
+    )
+)
+  ```
+]
+.pull-right[
+  ```{r, eval = TRUE, echo = TRUE}
+  newAccount <- UserAccount$new(
+    username = 'aljrico', 
+    password = 'verysecure1234'
+  )
+  ```
+  ```{r, eval = TRUE, echo = TRUE}
+    unprotectedDatabase <- newAccount$password
+    print(unprotectedDatabase)
+  ```
+]
+  ]
+  
+.panel[.panel-name[Setters and Getters]
+.pull-left[
+  ```{r, eval = TRUE, echo = TRUE}
+Human <- R6::R6Class("Human",
+  private = list(
+    name = character(0)
+  ),
+  public = list(
+    setName = function(name){
+      private$name <- name
+    },
+    getName = function(){
+      private$name
+    }
+  )
+)
+  ```
+]
+.pull-right[
+  ```{r, eval = TRUE, echo = TRUE}
+  me <- Human$new()
+  me$setName('Alejandro')
+  print(me$getName())
+  ```
+]
+]
+]
+
+
+---
+
+
+name: reactivity_in_r6
+
+### `r fa("box-open")` Reactivity in R6 Classes
+
+.panelset[
+  .panel[.panel-name[Basic Reactivity]
+  .pull-left[
+  ```{r, eval = FALSE, echo = TRUE}
+  # Reactive Expression
+  data <- reactive({
+    rnorm(1)
+  })
+  ```
+  ```{r, eval = FALSE, echo = TRUE}
+  # Gets called
+  output$result <- renderText({
+    data()
+  })
+  ```
+  ```{r, eval = FALSE, echo = TRUE}
+  # Data is shared without re-executing
+  observeEvent(data(), {
+    print(data())
+  })
+  ```
+  ]
+  .pull-right[
+    Reactive expressions are lazily evaulated. They cache and share the results.
+    Reactive values trigger a similar behaviour. But not if they are *mutable* objects
+    
+  ```{r, eval = FALSE, echo = TRUE}
+me <- shiny::reactiveVal(
+  Human$new()
+)
+  ```
+    
+   ```{r, eval = FALSE, echo = TRUE}
+observeEvent(input$button, {
+  me$setName("Alejandro")
+  me$move(2)
+  me$move(10)
+})
+  ```
+  ]
+  ]
+  .panel[.panel-name[Reactive R6 Objects]
+```{r, eval = FALSE, echo = TRUE}
+ReactiveAnimal <- R6::R6Class("ReactiveAnimal",
+  private = list(
+    position = 0,
+    reactiveDep = NULL,
+    invalidate = function(){
+      private$reactiveDep(rnorm(1))
+      invisible()
+    }
+  ),
+  public = list(
+    initialize = function(){
+      private$reactiveDep <- shiny::reactiveVal(0)
+    },
+    move = function(by = 1){
+     private$position = private$position + 1
+    }
+  )
+)
+```
+
+  
+  We can then verify if the password a user introduces is the same they used to register. <br>
+  Even if we don't know the actual password!
+  ]
+  .panel[.panel-name[Salting]
+  `r fa('square-plus')` &nbsp; Salt is added to the hashing process to force their uniqueness
+  ```{r, eval = TRUE, echo = TRUE}
+  hash_password <- function(input_password, salt){
+    paste0(salt, input_password) %>% digest::digest(algo = "sha256")
+  }
+  ```
+  ```{r, eval = TRUE, echo = TRUE}
+  hash_password("password1234", salt = "bagel")
+  hash_password("password1234", salt = "challah")
+  ```
+  ]
+]
+
+---
+
+
+name: message_authentication
+
+# `r fa("comments")` Message Authentication
+
+.panelset[
+  .panel[.panel-name[MAC]
+  `r fa("user-secret")` Like a common password to enter a secret club. A **M**essage **A**uthentication **C**ode (MAC) is based on a shared secret between the sender and the receiver.
+  
+  ```{r, eval = FALSE, echo = TRUE}
+  httr::POST(
+    url = "http://hydra.island/access",
+    body = list(
+      message = "Execute order 66",
+      secret_code = "polar bear"
+    )
+  )
+  ```
+  How do I know it's you who's sending me this? Because you're the only other server who also knows this secret code.
+  ]
+  .panel[.panel-name[...]
+  `r fa("plane-departure")` Let's say you are a member of the secret service. You are alone on an airport, waiting for your next flight. As you are pretty bored, you open your laptop and look for something to do. You spot a connection called **FREE WIFI AIRPORT**. You log in.
+  
+  `r fa("lightbulb")` Now let's say you decide is a great idea to send some important messages to the headquarters. You're very professional, so you'll include the `secret_code` in the message. This way the server knows it's you who sends it. Bulletproof.
+  
+  `r fa("door-open")` The situation is now the following: Whoever runs that WiFi might have intercepted that message. It not only has the power to read _and modify_ the message you just sent. It has the `secret_code` to keep sending messages and pretending to be you in the future. And you might never even notice it.
+  ]
+  .panel[.panel-name['Salted' MAC]
+  `r fa("square-plus")` A safer strategy would be to use our 'Salting' technique to generate the secret code
+  
+  ```{r, eval = FALSE, echo = TRUE}
+  message <- "Execute order 66"
+  hashed_secret_code <- hash_password(message, salt = "polar bear")
+  httr::POST(
+    url = "http://hydra.island/access",
+    body = list(
+      message = message,
+      secret_code = hashed_secret_code
+    )
+  )
+  ```
+  ]
+  .panel[.panel-name[...]
+  `r fa("thumbs-up")` Now if this is intercepted, only this message will be compromised. Since the `hashed_secret_code` will be different for each message we send. 
+  
+  `r fa("shield")` Knowing the message and the `hashed_secret_code` does not get anyone closer to figuring out the `secret_code.
+  
+  `r fa("not-equal")` If a third party intercepts and modify the message, the server will know. Because the `hashed_secret_code` will not match.
+  ]
+  .panel[.panel-name[HMAC]
+  While salting already accomplishes what we wanted. There are still some vulnerabilities that could be exploited through what is called [length extension attack](https://en.wikipedia.org/wiki/Length_extension_attack). There are well-established functions that concatenate the 'salt' in a more convoluted manner, protecting it from those attacks.
+  
+  ```{r, eval = FALSE, echo = TRUE}
+  digest::hmac(object = c(4, 8, 15, 16, 23, 42), key = "polar bear", algo = "sha256")
+  ```
+  - A HMAC uses a secret key, where as a 'salt' can be public. Though conceptually they're the same.
+  - "Salting" simply concatenates a 'salt' before hashing. The HMAC process adds the key in a more complicated way.
+  - Adding a `HMAC` is the current standard protocol to authenticate messages.
+  ]
+  .panel[.panel-name[...]
+    
+  `r fa("exclamation")` With the current configuration, a malicious 3rd party could not forge new messages. But it definitely could duplicate existing ones, if they manage to intercept them.
+  
+  `r fa("fingerprint")` To prevent the forge of duplicates, it's recommended to add a unique identifier for every message sent. We then can create a `HMAC` from the entire message
+  
+  ```{r, eval = TRUE, echo = TRUE}
+  message <- list(action = "Execture order 66", id = runif(max = 10^6, n = 1))
+  
+  message$hmac <- message %>% 
+    jsonlite::toJSON() %>% 
+    as.character() %>% 
+    digest::hmac(key = "polar bear", algo = "sha256")
+  ```
+  ]
+]
+
+---
+
+
+name: message_encryption
+
+# `r fa("envelope-open-text")` End-to-end encryption
+
+.panelset[
+  .panel[.panel-name[...]
+  `r fa("blender")` So far, the algorithms we've used completely destroy all information. They are designed so it's impossible to recover the original message, based on the hash they produce. There's no backtrack method. It's non reversible.
+  
+  `r fa("box")` Other algorithms don't completely destroy the information. They just hide it. These algorithms have methods both to encrypt and decrypt messages.
+  
+  <br>
+  
+  .center[<img src="img/reversible-encryption.png" style="max-width: 40%;"/>]
+  
+  .center[**Encryption** is reversible, **digestion** is not]
+  
+]
+  .panel[.panel-name[Naive encryption]
+  `r fa("universal-access")` The simplest way we could do something like this is to encode our message
+
+  ```{r, eval = TRUE, echo = TRUE}
+  encoded_message <- RCurl::base64Encode("Not Penny's boat!") %>% as.character()
+  encoded_message
+  
+  decoded_message <- RCurl::base64Decode(encoded_message)
+  decoded_message
+  ```
+  
+  But that's not very safe. Anyone can decode a message hidden like this.
+]
+.panel[.panel-name[Key-based encryption]
+  `r fa("key")` We can cover information by protecting the encoding under a secret key. This way, the message can *only* be decrypted with the key.
+  
+  ```{r, eval = TRUE, echo = TRUE}
+  key <- openssl::sha256(charToRaw("4815162342"))
+  msg <- digest::makeRaw("Not Penny's boat!")
+
+  encrypted_message <- openssl::aes_cbc_encrypt(msg, key)
+  rawToChar(encrypted_message[!encrypted_message=='00']) %>% RCurl::base64Encode() %>% as.character()
+  
+  encrypted_message %>% openssl::aes_cbc_decrypt(key) %>% rawToChar()
+  ```
+  ]
+  
+.panel[.panel-name[...]
+  `r fa("diagram-project")` The previous approach, while technically safe in 1-to-1 communication, has the complication of relying on a single key to identify all users. If we had to create a somewhat complex network of communications, we'd need to create a new key for every possible interaction between users. Which is unfeasible, since it grows as `factorial(1000)`. 
+  
+  `r fa("key")` A more scalable solution for this comes from the [RSA](https://w.wiki/tjT) protocol that involves a pair of keys. This protocol establishes that every user will have two keys, one that can be shared (public key) and another one that should be kept safe (secret key). A powerful application of this protocol, is the development of encryption algorithms that use the **public key** to encrypt a message, but it requires the **private key** to decrypt it. 
+  ]
+.panel[.panel-name[Asymmetric cryptography]
+  ```{r, eval = TRUE, echo = TRUE}
+  key <- openssl::rsa_keygen()
+  msg <- digest::makeRaw("Not Penny's boat!")
+  
+  encrypted_message <- openssl::rsa_encrypt(msg, key$pubkey)
+  rawToChar(encrypted_message[!encrypted_message=='00']) %>% RCurl::base64Encode() %>% as.character()
+  
+  decrypted_message <- openssl::rsa_decrypt(encrypted_message, key)
+  rawToChar(decrypted_message)
+  ```
+  ]
+.panel[.panel-name[...]
+  `r fa("right-left")` When two users start communication, they exchange public keys. Then they use each other's public keys to encrypt the messages.
+  
+  `r fa("user-lock")` Let's say user *Alice* wants to send a message to user *Bob*. Alice will use Bob's public key to encrypt the message, and send it encrypted. That way, even if message is intercepted and Bob's public key is intercepted, the message will remain hidden. Since the only way to decrypt it is through Bob's secret key. 
+  
+  `r fa("hard-drive")` So where are these 'secret' keys stored? Here's when the controversy kicks in. If you want to call it *end-to-end encryption*, then the secret key should only be stored in a user's client. That is the only way no third party (including the service provider) can read the messages.
+  ]
+]
+
+
+---
+
+
+name: blockchain
+class: wider
+
+# `r fa("cubes")` Creating your first blockchain 
+
+.panelset[
+  .panel[.panel-name[-]
+   <blockquote> 
+    A blockchain is a public database where new data are stored in a container called a block and are added to an immutable chain.    </blockquote>
+  
+  <hr>
+  
+  #### Properties
+  `r fa("box-open")` Anyone can add entries to this database
+  
+  `r fa("file-contract")` Every new entry is signed by its author
+  
+  `r fa("clipboard-check")` Every new entry needs to be verified
+  
+  `r fa("wrench")` Every new entry needs a proof of work
+  ]
+  .panel[.panel-name[Blocks]
+  `r fa("cube")` Data is organised in small containers called blocks
+  
+  ```{r, eval = TRUE, echo = TRUE}
+  block <- list(
+    index = 1, 
+    timestamp = Sys.time(), 
+    message = "And now it begins"
+  )
+  ```
+  
+  `r fa("cubes")` We can orderly stack this cubes in a `data.frame` structure
+  ```{r, eval = TRUE, echo = FALSE}
+  block1 <- list(
+  index = 1, 
+  timestamp = Sys.time(), 
+  message = "And now it begins"
+  )
+  block2 <- list(
+  index = 2, 
+  timestamp = Sys.time(), 
+  message = "Woe to the Usurper if we had been there"
+  )
+  
+  block3 <- list(
+  index = 3, 
+  timestamp = Sys.time(), 
+  message = "Dance with me then"
+  )
+  
+  blockchain <- rbind(data.frame(block1), data.frame(block2), data.frame(block3))
+  
+  blockchain
+  ```
+
+  ]
+  .panel[.panel-name[Signature]
+  `r fa("file-contract")` Signatures are a protocol to verify block ownership
+  
+  By 'inverting' the logic of asymmetric encryption, we generate a hash using a **private key**, which can be verified using its **public key**
+  .pull-left-narrow[
+  ```{r, eval = TRUE, echo = TRUE}
+  process_data <- function(data){
+  data %>% 
+    jsonlite::toJSON() %>% 
+    as.character() %>% 
+    digest::makeRaw()
+}
+  ```
+  ]
+  
+  .pull-right-wide[
+  ```{r, eval = TRUE, echo = TRUE}
+create_signature <- function(data, key){
+  msg <- process_data(data)
+  openssl::signature_create(msg, hash = openssl::sha256, key = key) %>% 
+    as.character() %>% 
+    paste(collapse = ",") %>% 
+    RCurl::base64Encode() %>% 
+    as.character()
+}
+  ```
+  ]
+  
+
+  ]
+]
+

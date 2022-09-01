@@ -3,55 +3,23 @@
 
 # shiny.plague
 
-<!-- badges: start -->
+This is an exercise on how to develop a game mostly using Shiny. It is a
+shiny application structured as an R package, following the
+[golem](https://github.com/ThinkR-open/golem) framework.
 
-[![Lifecycle:
-experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-<!-- badges: end -->
+## Get Started
 
-The goal of shiny.plague is to …
-
-## Installation
-
-You can install the development version of shiny.plague from
-[GitHub](https://github.com/) with:
+First, we’ll need to install all the necessary libraries. A complete
+list can be found in the `DESCRIPTION` file. But it’s just easier if you
+install the development version of the app and follow the instructions
+to install all dependencies.
 
 ``` r
 # install.packages("devtools")
 devtools::install_github("aljrico/shiny-plague")
 ```
 
-## Example
+## Walkthrough
 
-This is a basic example which shows you how to solve a common problem:
-
-``` r
-## basic example code
-```
-
-What is special about using `README.Rmd` instead of just `README.md`?
-You can include R chunks like so:
-
-``` r
-summary(cars)
-#>      speed           dist       
-#>  Min.   : 4.0   Min.   :  2.00  
-#>  1st Qu.:12.0   1st Qu.: 26.00  
-#>  Median :15.0   Median : 36.00  
-#>  Mean   :15.4   Mean   : 42.98  
-#>  3rd Qu.:19.0   3rd Qu.: 56.00  
-#>  Max.   :25.0   Max.   :120.00
-```
-
-You’ll still need to render `README.Rmd` regularly, to keep `README.md`
-up-to-date. `devtools::build_readme()` is handy for this. You could also
-use GitHub Actions to re-render `README.Rmd` every time you push. An
-example workflow can be found here:
-<https://github.com/r-lib/actions/tree/v1/examples>.
-
-You can also embed plots, for example:
-
-<img src="man/figures/README-pressure-1.png" width="100%" />
-
-In that case, don’t forget to commit and push the resulting figure
-files, so they display on GitHub and CRAN.
+This exercise is part of a Workshop in 2022’s
+[EARL](https://www.ascent.io/earl) conference. The slides
