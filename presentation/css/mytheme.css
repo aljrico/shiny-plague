@@ -30,11 +30,11 @@
 }
 
 p {
-    font-size: 0.8em;
+    font-size: 0.7em;
 }
 
 li {
-    font-size: 0.8em;
+    font-size: 0.75em;
 }
 
 /*-- LINKS/ANCHORS --*/
@@ -73,6 +73,7 @@ a:hover { border-bottom: none; }
 .remark-slide-content {
   font-size:          1.6rem;
   line-height:        1.2em;
+  padding: 0em 4em 0em 4em;
 }
 
 /*-- HORIZONTAL BARS --*/

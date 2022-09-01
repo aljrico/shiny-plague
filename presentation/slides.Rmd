@@ -58,8 +58,6 @@ class: about-me-slide, middle, center
 # About me
 
   <img style="border-radius: 50%;" src="img/avatar.png" width="150px"/>
-
-  #### Alejandro J Rico
   
   .list[
     [`r fa("house")` aljrico.com](https://aljrico.com) <br>
@@ -80,7 +78,7 @@ class: top, outline
 ---
 ##### `r fa("box")` OOP with R6
 ##### `r fa("box-open")` Reactivity in R6 Classes
-##### `r fa("network-wired")` Reactive Interdependence
+##### `r fa("network-wired")` State Management
 ##### `r fa("stopwatch")` Real-time Feedback
 ##### `r fa("gamepad")` Game Loop
 ]
@@ -322,81 +320,74 @@ In practice, that `ReactiveClass` is created in the server and used as a reactiv
 ---
 
 
-name: message_authentication
+name: state_management
 
-# `r fa("comments")` Message Authentication
+### `r fa("network-wired")` State Management
 
 .panelset[
-  .panel[.panel-name[MAC]
-  `r fa("user-secret")` Like a common password to enter a secret club. A **M**essage **A**uthentication **C**ode (MAC) is based on a shared secret between the sender and the receiver.
+  .panel[.panel-name[Downstream]
+.pull-left[
+    ![downstream_flow_state](img/downstream.drawio.png)
+]
+.pull-right[
+  Standard shiny applications have a downstream flow of the state.
   
-  ```{r, eval = FALSE, echo = TRUE}
-  httr::POST(
-    url = "http://hydra.island/access",
-    body = list(
-      message = "Execute order 66",
-      secret_code = "polar bear"
-    )
-  )
-  ```
-  How do I know it's you who's sending me this? Because you're the only other server who also knows this secret code.
+  The state of the app gets modified from a general control panel. Normally a sidebar or a header.
+  
+  The features merely display information. They very rarely modify the state of the app.
+]
   ]
-  .panel[.panel-name[...]
-  `r fa("plane-departure")` Let's say you are a member of the secret service. You are alone on an airport, waiting for your next flight. As you are pretty bored, you open your laptop and look for something to do. You spot a connection called **FREE WIFI AIRPORT**. You log in.
+  .panel[.panel-name[Deep Interactivity]
+.pull-left[
+    ![downstream_flow_state](img/bidirectional.drawio.png)
+]
+.pull-right[
+  Games are more complicated.
   
-  `r fa("lightbulb")` Now let's say you decide is a great idea to send some important messages to the headquarters. You're very professional, so you'll include the `secret_code` in the message. This way the server knows it's you who sends it. Bulletproof.
-  
-  `r fa("door-open")` The situation is now the following: Whoever runs that WiFi might have intercepted that message. It not only has the power to read _and modify_ the message you just sent. It has the `secret_code` to keep sending messages and pretending to be you in the future. And you might never even notice it.
+  The state of the app gets modified by *everything*. 
+  Every part of the button is a piece of interactive UI that needs to update and get updated by the general State
+]
   ]
-  .panel[.panel-name['Salted' MAC]
-  `r fa("square-plus")` A safer strategy would be to use our 'Salting' technique to generate the secret code
-  
-  ```{r, eval = FALSE, echo = TRUE}
-  message <- "Execute order 66"
-  hashed_secret_code <- hash_password(message, salt = "polar bear")
-  httr::POST(
-    url = "http://hydra.island/access",
-    body = list(
-      message = message,
-      secret_code = hashed_secret_code
-    )
-  )
-  ```
-  ]
-  .panel[.panel-name[...]
-  `r fa("thumbs-up")` Now if this is intercepted, only this message will be compromised. Since the `hashed_secret_code` will be different for each message we send. 
-  
-  `r fa("shield")` Knowing the message and the `hashed_secret_code` does not get anyone closer to figuring out the `secret_code.
-  
-  `r fa("not-equal")` If a third party intercepts and modify the message, the server will know. Because the `hashed_secret_code` will not match.
-  ]
-  .panel[.panel-name[HMAC]
-  While salting already accomplishes what we wanted. There are still some vulnerabilities that could be exploited through what is called [length extension attack](https://en.wikipedia.org/wiki/Length_extension_attack). There are well-established functions that concatenate the 'salt' in a more convoluted manner, protecting it from those attacks.
-  
-  ```{r, eval = FALSE, echo = TRUE}
-  digest::hmac(object = c(4, 8, 15, 16, 23, 42), key = "polar bear", algo = "sha256")
-  ```
-  - A HMAC uses a secret key, where as a 'salt' can be public. Though conceptually they're the same.
-  - "Salting" simply concatenates a 'salt' before hashing. The HMAC process adds the key in a more complicated way.
-  - Adding a `HMAC` is the current standard protocol to authenticate messages.
-  ]
-  .panel[.panel-name[...]
+  .panel[.panel-name[Mutable Reactive Dependencies]
+    A potential solution for this is the usage of mutable reactive values that are available throughout the app.
     
-  `r fa("exclamation")` With the current configuration, a malicious 3rd party could not forge new messages. But it definitely could duplicate existing ones, if they manage to intercept them.
-  
-  `r fa("fingerprint")` To prevent the forge of duplicates, it's recommended to add a unique identifier for every message sent. We then can create a `HMAC` from the entire message
-  
-  ```{r, eval = TRUE, echo = TRUE}
-  message <- list(action = "Execture order 66", id = runif(max = 10^6, n = 1))
-  
-  message$hmac <- message %>% 
-    jsonlite::toJSON() %>% 
-    as.character() %>% 
-    digest::hmac(key = "polar bear", algo = "sha256")
-  ```
+  .pull-left[
+  Passing the global `gameState` object to every module.
+  Creating a trickle down of reactive dependencies.
+```{r, eval = FALSE, echo = TRUE}
+# app_server.R
+mod_counter_server(
+  id = 'counter', 
+  gameState = gameState
+)
+
+mod_button_server(
+  id = 'button', 
+  gameState = gameState
+)
+```
+  ]
+  .pull-right[
+
+```{r, eval = FALSE, echo = TRUE}
+# mod_counter_server.R
+output$counter <- renderUI({
+  gameState()$displayCounter()
+})
+``` 
+<br>
+
+```{r, eval = FALSE, echo = TRUE}
+# mod_button_server.R
+observeEvent(input$button, {
+  gameState()$increaseCounter()
+})
+``` 
+
+  ]
   ]
 ]
-
+  
 ---
 
 
