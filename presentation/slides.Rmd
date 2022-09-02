@@ -70,36 +70,27 @@ class: about-me-slide, middle, center
 
 name: outline
 layout: false
-class: top, outline
+class: middle, outline
 
 # Outline
 .fluid-row[
 .pull-left-wide[
-#### Logic
----
+<br>
+<br>
 ##### `r fa("box")` OOP with R6
 ##### `r fa("box-open")` Reactivity in R6 Classes
 ##### `r fa("network-wired")` State Management
 ##### `r fa("stopwatch")` Game Loop
-]
-.pull-left-wide[
-#### User Interface
----
-#####`r fa("cube")` Minimal Layout
-#####`r fa("cubes")` Progressive Complexity
 #####`r fontawesome::fa("signs-post")` Design Language
-#####`r fa("face-smile")` Satisfying Feedback
-#####`r fa("atom")` Executable
 ]
 ]
-
 
 ---
-name: logic
+name: cover_oop_with_r6
 layout: false
 class: about-me-slide, middle, center
 
-# Logic
+# `r fa("box")` OOP with R6
 
 ---
 
@@ -488,7 +479,7 @@ Users navigate the real world under assumptions. For example when entering a Res
 Any slight deviations from this script end up in formal complaints.
 ]
 
-  .panel[.panel-name[Clickables]
+  .panel[.panel-name[Example: Buttons]
   
 .pull-left[
   .center[
