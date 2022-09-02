@@ -75,13 +75,15 @@ class: middle, outline
 # Outline
 .fluid-row[
 .pull-left-wide[
-<br>
-<br>
-##### `r fa("box")` OOP with R6
-##### `r fa("box-open")` Reactivity in R6 Classes
-##### `r fa("network-wired")` State Management
-##### `r fa("stopwatch")` Game Loop
-#####`r fontawesome::fa("signs-post")` Design Language
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+<ul class="fa-ul">
+  <li><span class="fa-li"><i class="fa-solid fa-box"></i></span>OOP with R6</li>
+  <li><span class="fa-li"><i class="fa-solid fa-box-open"></i></span>Reactivity in R6 Classes</li>
+  <li><span class="fa-li"><i class="fa-solid fa-network-wired"></i></span>State Management</li>
+  <li><span class="fa-li"><i class="fa-solid fa-stopwatch"></i></span>Game Loop</li>
+  <li><span class="fa-li"><i class="fa-solid fa-signs-post"></i></span>Design Language</li>
+  <li><span class="fa-li"><i class="fa-solid fa-spinner fa-pulse"></i></span>Working Example</li>
+</ul>
 ]
 ]
 
@@ -194,6 +196,13 @@ Human <- R6::R6Class("Human",
 ]
 ]
 
+
+---
+name: cover_reactivity_in_r6
+layout: false
+class: about-me-slide, middle, center
+
+# `r fa("box-open")` Reactivity in R6 Classes
 
 ---
 
@@ -316,7 +325,13 @@ In practice, that `ReactiveClass` is created in the server and used as a reactiv
 ]
 
 ---
+name: cover_state_management
+layout: false
+class: about-me-slide, middle, center
 
+# `r fa("network-wired")` State Management
+
+---
 
 name: state_management
 
@@ -387,6 +402,13 @@ observeEvent(input$button, {
 ]
   
 ---
+name: cover_real_time_feedback
+layout: false
+class: about-me-slide, middle, center
+
+# `r fa("stopwatch")` Game Loop
+
+---
 
 
 name: real_time_feedback
@@ -431,12 +453,11 @@ observeEvent(loop(), {
 ]
 
 ---
-name: ui
+name: cover_design_language
 layout: false
 class: about-me-slide, middle, center
 
-# User Interface
-
+# `r fontawesome::fa("signs-post")` Design Language
 
 ---
 
@@ -502,4 +523,16 @@ Any slight deviations from this script end up in formal complaints.
 ]
 ]
 ]
+
+---
+name: cover_design_language
+layout: false
+class: about-me-slide, middle, center
+
+# `r fontawesome::fa('gamepad')` Working Example
+<br>
+<br>
+<i style="font-size: 80px" class="fa-solid fa-spinner fa-pulse"></i>
+
+---
 
