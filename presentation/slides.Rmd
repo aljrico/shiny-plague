@@ -82,7 +82,7 @@ class: middle, outline
   <li><span class="fa-li"><i class="fa-solid fa-network-wired"></i></span>State Management</li>
   <li><span class="fa-li"><i class="fa-solid fa-stopwatch"></i></span>Game Loop</li>
   <li><span class="fa-li"><i class="fa-solid fa-signs-post"></i></span>Design Language</li>
-  <li><span class="fa-li"><i class="fa-solid fa-spinner fa-pulse"></i></span>Working Example</li>
+  <li><span class="fa-li"><i class="fa-solid fa-gamepad"></i></span>Working Example</li>
 </ul>
 ]
 ]
@@ -530,9 +530,6 @@ layout: false
 class: about-me-slide, middle, center
 
 # `r fontawesome::fa('gamepad')` Working Example
-<br>
-<br>
-<i style="font-size: 80px" class="fa-solid fa-spinner fa-pulse"></i>
 
 ---
 
