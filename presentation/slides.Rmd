@@ -10,6 +10,7 @@ output:
       - css/mytheme.css
       - css/mytheme-fonts.css
       - css/layout.css
+      - css/ui-pieces.css
     lib_dir: libs
     seal: false
     self_contained: false
@@ -79,8 +80,7 @@ class: top, outline
 ##### `r fa("box")` OOP with R6
 ##### `r fa("box-open")` Reactivity in R6 Classes
 ##### `r fa("network-wired")` State Management
-##### `r fa("stopwatch")` Real-time Feedback
-##### `r fa("gamepad")` Game Loop
+##### `r fa("stopwatch")` Game Loop
 ]
 .pull-left-wide[
 #### User Interface
@@ -93,8 +93,15 @@ class: top, outline
 ]
 ]
 
----
 
+---
+name: logic
+layout: false
+class: about-me-slide, middle, center
+
+# Logic
+
+---
 
 name: oop_with_r6
 
@@ -382,7 +389,7 @@ output$counter <- renderUI({
 observeEvent(input$button, {
   gameState()$increaseCounter()
 })
-``` 
+```
 
   ]
   ]
@@ -391,166 +398,117 @@ observeEvent(input$button, {
 ---
 
 
-name: message_encryption
+name: real_time_feedback
 
-# `r fa("envelope-open-text")` End-to-end encryption
+### `r fa("stopwatch")` Game Loop
 
 .panelset[
-  .panel[.panel-name[...]
-  `r fa("blender")` So far, the algorithms we've used completely destroy all information. They are designed so it's impossible to recover the original message, based on the hash they produce. There's no backtrack method. It's non reversible.
+  .panel[.panel-name[Reaction-based behaviour]
   
-  `r fa("box")` Other algorithms don't completely destroy the information. They just hide it. These algorithms have methods both to encrypt and decrypt messages.
+.pull-left[
+  Traditional software programming does nothing without user input. Shiny is no different.
   
-  <br>
-  
-  .center[<img src="img/reversible-encryption.png" style="max-width: 40%;"/>]
-  
-  .center[**Encryption** is reversible, **digestion** is not]
-  
+  If the user interacts with a reactive value, the app *reacts* to it. But if the user doesn't interact, the app is idle.
 ]
-  .panel[.panel-name[Naive encryption]
-  `r fa("universal-access")` The simplest way we could do something like this is to encode our message
+.pull-right[
+But we don't want that in a game. Stuff happens in real time, with or without user input. Enemies attack, characters move, timers go on, etc. This is called the **Game Loop**.
 
-  ```{r, eval = TRUE, echo = TRUE}
-  encoded_message <- RCurl::base64Encode("Not Penny's boat!") %>% as.character()
-  encoded_message
-  
-  decoded_message <- RCurl::base64Decode(encoded_message)
-  decoded_message
-  ```
-  
-  But that's not very safe. Anyone can decode a message hidden like this.
+```{r, echo = TRUE, eval = FALSE}
+# Pseudo-code of Game Loop
+while(TRUE){
+  react_to_user_input()
+  move_units()
+  resolve_collisions()
+  update_stats()
+  draw_graphics()
+}
+```
 ]
-.panel[.panel-name[Key-based encryption]
-  `r fa("key")` We can cover information by protecting the encoding under a secret key. This way, the message can *only* be decrypted with the key.
+]
+  .panel[.panel-name[Time-based behaviour]
+  We can trick the Shiny Server into implementing a game loop by simulating user interaction. By creating a reactive gets automatically invalidated at a constant pace.
   
-  ```{r, eval = TRUE, echo = TRUE}
-  key <- openssl::sha256(charToRaw("4815162342"))
-  msg <- digest::makeRaw("Not Penny's boat!")
+```{r, echo = TRUE, eval = FALSE}
+loop <- reactiveTimer(1000) # miliseconds
+observeEvent(loop(), {
+  gameState()$moveUnits()
+  gameState()$resolveCollisions()
+  gameState()$updateStats()
+})
+```
+]
+]
 
-  encrypted_message <- openssl::aes_cbc_encrypt(msg, key)
-  rawToChar(encrypted_message[!encrypted_message=='00']) %>% RCurl::base64Encode() %>% as.character()
-  
-  encrypted_message %>% openssl::aes_cbc_decrypt(key) %>% rawToChar()
-  ```
-  ]
-  
-.panel[.panel-name[...]
-  `r fa("diagram-project")` The previous approach, while technically safe in 1-to-1 communication, has the complication of relying on a single key to identify all users. If we had to create a somewhat complex network of communications, we'd need to create a new key for every possible interaction between users. Which is unfeasible, since it grows as `factorial(1000)`. 
-  
-  `r fa("key")` A more scalable solution for this comes from the [RSA](https://w.wiki/tjT) protocol that involves a pair of keys. This protocol establishes that every user will have two keys, one that can be shared (public key) and another one that should be kept safe (secret key). A powerful application of this protocol, is the development of encryption algorithms that use the **public key** to encrypt a message, but it requires the **private key** to decrypt it. 
-  ]
-.panel[.panel-name[Asymmetric cryptography]
-  ```{r, eval = TRUE, echo = TRUE}
-  key <- openssl::rsa_keygen()
-  msg <- digest::makeRaw("Not Penny's boat!")
-  
-  encrypted_message <- openssl::rsa_encrypt(msg, key$pubkey)
-  rawToChar(encrypted_message[!encrypted_message=='00']) %>% RCurl::base64Encode() %>% as.character()
-  
-  decrypted_message <- openssl::rsa_decrypt(encrypted_message, key)
-  rawToChar(decrypted_message)
-  ```
-  ]
-.panel[.panel-name[...]
-  `r fa("right-left")` When two users start communication, they exchange public keys. Then they use each other's public keys to encrypt the messages.
-  
-  `r fa("user-lock")` Let's say user *Alice* wants to send a message to user *Bob*. Alice will use Bob's public key to encrypt the message, and send it encrypted. That way, even if message is intercepted and Bob's public key is intercepted, the message will remain hidden. Since the only way to decrypt it is through Bob's secret key. 
-  
-  `r fa("hard-drive")` So where are these 'secret' keys stored? Here's when the controversy kicks in. If you want to call it *end-to-end encryption*, then the secret key should only be stored in a user's client. That is the only way no third party (including the service provider) can read the messages.
-  ]
-]
+---
+name: ui
+layout: false
+class: about-me-slide, middle, center
+
+# User Interface
 
 
 ---
 
+name: design_language
 
-name: blockchain
-class: wider
-
-# `r fa("cubes")` Creating your first blockchain 
+### `r fontawesome::fa("signs-post")` Design Language
 
 .panelset[
-  .panel[.panel-name[-]
-   <blockquote> 
-    A blockchain is a public database where new data are stored in a container called a block and are added to an immutable chain.    </blockquote>
-  
-  <hr>
-  
-  #### Properties
-  `r fa("box-open")` Anyone can add entries to this database
-  
-  `r fa("file-contract")` Every new entry is signed by its author
-  
-  `r fa("clipboard-check")` Every new entry needs to be verified
-  
-  `r fa("wrench")` Every new entry needs a proof of work
-  ]
-  .panel[.panel-name[Blocks]
-  `r fa("cube")` Data is organised in small containers called blocks
-  
-  ```{r, eval = TRUE, echo = TRUE}
-  block <- list(
-    index = 1, 
-    timestamp = Sys.time(), 
-    message = "And now it begins"
-  )
-  ```
-  
-  `r fa("cubes")` We can orderly stack this cubes in a `data.frame` structure
-  ```{r, eval = TRUE, echo = FALSE}
-  block1 <- list(
-  index = 1, 
-  timestamp = Sys.time(), 
-  message = "And now it begins"
-  )
-  block2 <- list(
-  index = 2, 
-  timestamp = Sys.time(), 
-  message = "Woe to the Usurper if we had been there"
-  )
-  
-  block3 <- list(
-  index = 3, 
-  timestamp = Sys.time(), 
-  message = "Dance with me then"
-  )
-  
-  blockchain <- rbind(data.frame(block1), data.frame(block2), data.frame(block3))
-  
-  blockchain
-  ```
 
-  ]
-  .panel[.panel-name[Signature]
-  `r fa("file-contract")` Signatures are a protocol to verify block ownership
+  .panel[.panel-name[Intuitive Design]
   
-  By 'inverting' the logic of asymmetric encryption, we generate a hash using a **private key**, which can be verified using its **public key**
-  .pull-left-narrow[
-  ```{r, eval = TRUE, echo = TRUE}
-  process_data <- function(data){
-  data %>% 
-    jsonlite::toJSON() %>% 
-    as.character() %>% 
-    digest::makeRaw()
-}
-  ```
+  .pull-left[
+  .center[<img src="img/control_panel.jpg" width="400px"/>]
+  
   ]
   
-  .pull-right-wide[
-  ```{r, eval = TRUE, echo = TRUE}
-create_signature <- function(data, key){
-  msg <- process_data(data)
-  openssl::signature_create(msg, hash = openssl::sha256, key = key) %>% 
-    as.character() %>% 
-    paste(collapse = ",") %>% 
-    RCurl::base64Encode() %>% 
-    as.character()
-}
-  ```
-  ]
-  
+  .pull-right[
+An intuitive **User Interface** is one that behaves like the user expects it to. Even if that expectation is not conscious.
 
+Users find navigation intuitive if they understand it without actively thinking about it.
+    
+Any piece of software is a tool to perform a task. The user should be thinking about that task. And not about the software functionality. 
+
+The bran juice wasted in navigating the software is called *cognitive load*. Intuitive interfaces have lower cognitive load.
+]
+]
+
+.panel[.panel-name[Example: Restaurant]
+Users navigate the real world under assumptions. For example when entering a Restaurant. The experience of dining at a restaurant are pretty scripted. And this is how a user's subconsciously expects it to happen:
+  
+* I will be greeted
+* I will be seated
+* I will be handed a menu
+* I will pick from certain options
+* I will be brought food
+* I will eat such food
+* I will pay for it
+* I will leave the place
+  
+Any slight deviations from this script end up in formal complaints.
+]
+
+  .panel[.panel-name[Clickables]
+  
+.pull-left[
+  .center[
+  .btn-default[Default State]
+  
+  .btn-default-hover[Hover State]
+  
+  .btn-default-active[Active State]
+  
+  .btn-default-disabled[Disabled State]
+  
+  .btn-default-forbidden[Forbidden State]
+  
+  .btn-default-danger[Danger State]
   ]
+]
+.pull-right[
+* The label *explains* what the button is doing.
+* The design *conveys* an intuitive understanding of the button.
+]
+]
 ]
 
