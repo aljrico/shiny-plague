@@ -81,7 +81,7 @@ CardsManager <- R6::R6Class(
         ),
         Card$new(
           category = 'Anaemia',
-          cost = 7,
+          cost = 8,
           lethality = 5,
           infectiousness = 0,
           visibility = 5
@@ -95,14 +95,14 @@ CardsManager <- R6::R6Class(
         ),
         Card$new(
           category = 'Paranoia',
-          cost = 10,
+          cost = 12,
           lethality = 1,
           infectiousness = 0,
           visibility = 5
         ),
         Card$new(
           category = 'Insanity',
-          cost = 10,
+          cost = 12,
           lethality = 2,
           infectiousness = 0,
           visibility = 6
@@ -123,24 +123,24 @@ CardsManager <- R6::R6Class(
         ),
         Card$new(
           category = 'Diarrhoea',
-          cost = 4,
+          cost = 7,
           lethality = 3,
           infectiousness = 7,
           visibility = 3
         ),
         Card$new(
           category = 'Pulmonary Fibrosis',
-          cost = 10,
+          cost = 20,
           lethality = 10,
-          infectiousness = 1,
+          infectiousness = 10,
           visibility = 5
         ),
         Card$new(
           category = 'Pulmonary Oedema',
-          cost = 8,
+          cost = 20,
           lethality = 5,
-          infectiousness = 4,
-          visibility = 2
+          infectiousness = 15,
+          visibility = 5
         ),
         Card$new(
           category = 'Tumours',
@@ -151,31 +151,31 @@ CardsManager <- R6::R6Class(
         ),
         Card$new(
           category = 'Immune Suppression',
-          cost = 25,
+          cost = 50,
           lethality = 12,
           infectiousness = 2,
           visibility = 2
         ),
         Card$new(
           category = 'Necrosis',
-          cost = 25,
-          lethality = 16,
-          infectiousness = 8,
-          visibility = 8
+          cost = 75,
+          lethality = 32,
+          infectiousness = 16,
+          visibility = 16
         ),
         Card$new(
           category = 'Hemorrhagic Shock',
-          cost = 20,
+          cost = 50,
           lethality = 10,
           infectiousness = 1,
           visibility = 6
         ),
         Card$new(
           category = 'Total Organ Failure',
-          cost = 30,
+          cost = 100,
           lethality = 32,
           infectiousness = 0,
-          visibility = 16
+          visibility = 8
         )
       )
     }
