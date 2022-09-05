@@ -1,13 +1,12 @@
 GameState <- R6::R6Class(
   "GameState",
+  inherit = ReactiveClass,
   private = list(
     map_data = NULL,
     borders = NULL,
     country_border_mapping = NULL,
     score = NULL,
     health = NULL,
-    reactiveDep = NULL,
-    reactiveExpr = NULL,
     dna_points_probability = 0.1,
     dna_points = 0,
     lethality = 0,
@@ -18,11 +17,6 @@ GameState <- R6::R6Class(
     medical_progress = 0.01,
     count = 0,
     date = lubridate::ymd("1994-12-23"),
-    invalidate = function() {
-      private$count <- private$count + 1
-      private$reactiveDep(private$count)
-      invisible()
-    },
     initializeData = function() {
       data("map_data", envir = environment())
       private$map_data <- map_data
@@ -163,22 +157,10 @@ GameState <- R6::R6Class(
       # Until someone calls $reactive(), private$reactiveDep() is a no-op. Need
       # to set it here because if it's set in the definition of private above, it will
       # be locked and can't be changed.
-      private$reactiveDep <- function(x) NULL
       private$initializeData()
       self$setDeathProbability(0)
       self$setInfectionProbability(0)
       self$cardsManager <- CardsManager$new()
-    },
-    reactive = function() {
-      # Ensure the reactive stuff is initialized.
-      if (is.null(private$reactiveExpr)) {
-        private$reactiveDep <- reactiveVal(0)
-        private$reactiveExpr <- reactive({
-          private$reactiveDep()
-          self
-        })
-      }
-      private$reactiveExpr
     },
     print = function() {
       infected_countries <- private$map_data[private$map_data$confirmed_cases > 0, ]$ISO3 |>
