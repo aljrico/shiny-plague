@@ -50,6 +50,10 @@ Counter <- R6::R6Class(
 Producer <- R6::R6Class(
   'Producer',
   public = list(
+    initialize = function(cost, productivity){
+      private$cost <- cost
+      private$productivity <- productivity
+    },
     getCost = function(){
       private$cost
     },
@@ -61,8 +65,8 @@ Producer <- R6::R6Class(
     }
   ),
   private = list(
-    cost = 10,
-    productivity = 1
+    cost = numeric(0),
+    productivity = numeric(0)
   )
 )
 
@@ -82,12 +86,13 @@ ui <- fluidPage(
 server <- function(input, output, session){
   
   counter <- Counter$new()$reactive()
-  producer <- Producer$new()
+  producer1 <- Producer$new(cost = 10, productivity = 100)
+  producer2 <- Producer$new(cost = 1000, productivity = 5)
   loop <- shiny::reactiveTimer(1000)
-  isAutomaticProductionActive <- shiny::reactiveVal(FALSE)
+  automaticProduction <- shiny::reactiveVal(0)
   
   observeEvent(loop(), {
-    if(isAutomaticProductionActive()) counter()$increaseValue()
+    counter()$increaseValue(automaticProduction())
   })
   
   output$counter <- renderText({
@@ -99,7 +104,7 @@ server <- function(input, output, session){
   })
   
   observe({
-    if(producer$isAvailable(counter()$getValue())){
+    if(producer1$isAvailable(counter()$getValue())){
       shinyjs::enable('producer_button')
     }else{
       shinyjs::disable('producer_button')
@@ -107,8 +112,8 @@ server <- function(input, output, session){
   })
   
   observeEvent(input$producer_button, {
-    isAutomaticProductionActive(TRUE)
-    counter()$decreaseValue(producer$getCost())
+    automaticProduction(automaticProduction() + producer1$getProductivity())
+    counter()$decreaseValue(producer1$getCost())
   })
 }
 
