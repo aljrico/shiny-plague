@@ -34,7 +34,7 @@ Counter <- R6::R6Class(
   ),
   public = list(
     increaseValue = function(by = 1){
-      private$value <- private$value + 1
+      private$value <- private$value + by
       private$invalidate()
     },
     getValue = function(){
