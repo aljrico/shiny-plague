@@ -43,23 +43,67 @@ Counter <- R6::R6Class(
   )
 )
 
+Producer <- R6::R6Class(
+  'Producer',
+  public = list(
+    getCost = function(){
+      private$cost
+    },
+    getProductivity = function(){
+      private$productivity
+    },
+    isAvailable = function(currentWealth){
+      currentWealth >= self$getCost()
+    }
+  ),
+  private = list(
+    cost = 10,
+    productivity = 1
+  )
+)
+
 ui <- fluidPage(
+  shinyjs::useShinyjs(),
   shiny::textOutput('counter'),
   shiny::actionButton(
     inputId = 'button',
     label = 'Press me!'
+  ),
+  shiny::actionButton(
+    inputId = 'producer_button',
+    label = 'Activate Automatic Production'
   )
 )
 
 server <- function(input, output, session){
   
   counter <- Counter$new()$reactive()
+  producer <- Producer$new()
+  loop <- shiny::reactiveTimer(1000)
+  isAutomaticProductionActive <- shiny::reactiveVal(FALSE)
+  
+  observeEvent(loop(), {
+    if(isAutomaticProductionActive()) counter()$increaseValue()
+  })
+  
   output$counter <- renderText({
     counter()$getValue()
   })
   
   observeEvent(input$button, {
     counter()$increaseValue()
+  })
+  
+  observe({
+    if(producer$isAvailable(counter()$getValue())){
+      shinyjs::enable('producer_button')
+    }else{
+      shinyjs::disable('producer_button')
+    }
+  })
+  
+  observeEvent(input$producer_button, {
+    isAutomaticProductionActive(TRUE)
   })
 }
 
