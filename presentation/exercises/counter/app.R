@@ -1,4 +1,6 @@
-source('presentation/exercises/counter/producerButton.R')
+current_directory <- this.path::this.path()
+setwd(dirname(current_directory))
+source('producerButton.R')
 
 ReactiveClass <- R6::R6Class(
   "ReactiveClass",
