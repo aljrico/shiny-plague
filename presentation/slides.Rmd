@@ -68,6 +68,14 @@ class: about-me-slide, middle, center
 
 ---
 
+name: cover_what_is_a_game
+layout: false
+class: about-me-slide, middle, center
+
+# What is a game?
+
+---
+
 name: outline
 layout: false
 class: middle, outline
@@ -533,3 +541,10 @@ class: about-me-slide, middle, center
 
 ---
 
+name: end
+layout: false
+class: about-me-slide, middle, center
+
+# end.
+
+---
