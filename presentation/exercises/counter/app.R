@@ -37,6 +37,10 @@ Counter <- R6::R6Class(
       private$value <- private$value + by
       private$invalidate()
     },
+    decreaseValue = function(by){
+      private$value <- private$value - by
+      private$invalidate()
+    },
     getValue = function(){
       private$value
     }
@@ -104,6 +108,7 @@ server <- function(input, output, session){
   
   observeEvent(input$producer_button, {
     isAutomaticProductionActive(TRUE)
+    counter()$decreaseValue(producer$getCost())
   })
 }
 
