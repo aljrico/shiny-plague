@@ -79,10 +79,6 @@ ui <- fluidPage(
     inputId = 'button',
     label = 'Press me!'
   ),
-  shiny::actionButton(
-    inputId = 'producer_button',
-    label = 'Activate Automatic Production'
-  ),
   producerButton_ui(id = 'producer1', label = 'Producer 1'),
   producerButton_ui(id = 'producer2', label = 'Producer 2')
 )
@@ -90,13 +86,22 @@ ui <- fluidPage(
 server <- function(input, output, session){
   
   counter <- Counter$new()$reactive()
-  producer1 <- Producer$new(cost = 10, productivity = 100)
-  producer2 <- Producer$new(cost = 1000, productivity = 5)
   loop <- shiny::reactiveTimer(1000)
   automaticProduction <- shiny::reactiveVal(0)
   
-  producerButton_server(id = 'producer1')
-  producerButton_server(id = 'producer2')
+  producerButton_server(
+    id = 'producer1',
+    counter = counter,
+    producer = Producer$new(cost = 10, productivity = 1),
+    automaticProduction = automaticProduction
+  )
+  
+  producerButton_server(
+    id = 'producer2',
+    counter = counter,
+    producer = Producer$new(cost = 100, productivity = 5),
+    automaticProduction = automaticProduction
+  )
   
   observeEvent(loop(), {
     counter()$increaseValue(automaticProduction())
@@ -108,19 +113,6 @@ server <- function(input, output, session){
   
   observeEvent(input$button, {
     counter()$increaseValue()
-  })
-  
-  observe({
-    if(producer1$isAvailable(counter()$getValue())){
-      shinyjs::enable('producer_button')
-    }else{
-      shinyjs::disable('producer_button')
-    }
-  })
-  
-  observeEvent(input$producer_button, {
-    automaticProduction(automaticProduction() + producer1$getProductivity())
-    counter()$decreaseValue(producer1$getCost())
   })
 }
 
