@@ -25,14 +25,14 @@ server <- function(input, output, session){
   producerButton_server(
     id = 'producer1',
     counter = counter,
-    producer = Producer$new(cost = 10, productivity = 1),
+    producer = Producer$new(cost = 10, productivity = 1)$reactive(),
     automaticProduction = automaticProduction
   )
   
   producerButton_server(
     id = 'producer2',
     counter = counter,
-    producer = Producer$new(cost = 100, productivity = 5),
+    producer = Producer$new(cost = 100, productivity = 5)$reactive(),
     automaticProduction = automaticProduction
   )
   

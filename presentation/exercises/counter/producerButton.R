@@ -8,8 +8,16 @@ producerButton_ui <- function(id, label){
 
 producerButton_server <- function(id, counter, producer, automaticProduction){
   shiny::moduleServer(id, function(input, output, session){
+    
     observe({
-      if(producer$isAvailable(counter()$getValue())){
+      shiny::updateActionButton(
+        inputId = 'button',
+        label = paste0('Cost: ', producer()$getCost(), ' Production: ', producer()$getProductivity())
+      )
+    })
+    
+    observe({
+      if(producer()$isAvailable(counter()$getValue())){
         shinyjs::enable('button')
       }else{
         shinyjs::disable('button')
@@ -17,8 +25,9 @@ producerButton_server <- function(id, counter, producer, automaticProduction){
     })
     
     observeEvent(input$button, {
-      automaticProduction(automaticProduction() + producer$getProductivity())
-      counter()$decreaseValue(producer$getCost())
+      automaticProduction(automaticProduction() + producer()$getProductivity())
+      counter()$decreaseValue(producer()$getCost())
+      producer()$increaseCost()
     })
   })
 }
