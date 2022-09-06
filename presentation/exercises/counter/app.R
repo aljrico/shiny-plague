@@ -83,8 +83,8 @@ ui <- fluidPage(
     inputId = 'producer_button',
     label = 'Activate Automatic Production'
   ),
-  producerButton_ui(id = 'producer1'),
-  producerButton_ui(id = 'producer2')
+  producerButton_ui(id = 'producer1', label = 'Producer 1'),
+  producerButton_ui(id = 'producer2', label = 'Producer 2')
 )
 
 server <- function(input, output, session){

@@ -1,8 +1,8 @@
-producerButton_ui <- function(id){
+producerButton_ui <- function(id, label){
   ns <- shiny::NS(id)  
   actionButton(
     inputId = ns('producer'),
-    label = 'Producer'
+    label = label
   )
 }
 
