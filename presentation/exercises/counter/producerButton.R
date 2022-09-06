@@ -6,7 +6,7 @@ producerButton_ui <- function(id){
   )
 }
 
-produerButton_server <- function(id){
+producerButton_server <- function(id){
   shiny::moduleServer(id, function(input, output, session){
     observeEvent(input$producer, {
       print(input$producer)

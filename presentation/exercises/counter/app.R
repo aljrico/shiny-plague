@@ -1,3 +1,5 @@
+source('presentation/exercises/counter/producerButton.R')
+
 ReactiveClass <- R6::R6Class(
   "ReactiveClass",
   private = list(
@@ -80,7 +82,9 @@ ui <- fluidPage(
   shiny::actionButton(
     inputId = 'producer_button',
     label = 'Activate Automatic Production'
-  )
+  ),
+  producerButton_ui(id = 'producer1'),
+  producerButton_ui(id = 'producer2')
 )
 
 server <- function(input, output, session){
@@ -90,6 +94,9 @@ server <- function(input, output, session){
   producer2 <- Producer$new(cost = 1000, productivity = 5)
   loop <- shiny::reactiveTimer(1000)
   automaticProduction <- shiny::reactiveVal(0)
+  
+  producerButton_server(id = 'producer1')
+  producerButton_server(id = 'producer2')
   
   observeEvent(loop(), {
     counter()$increaseValue(automaticProduction())
